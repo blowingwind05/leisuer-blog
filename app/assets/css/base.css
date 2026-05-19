@@ -1,0 +1,72 @@
+:root {
+  --color-bg: #eef7ff;
+  --color-text-main: #111111;
+  --color-text-muted: #666666;
+  --color-border: #eaeaea;
+  --color-accent: #53a3f1;
+  --color-nav-bg: #ffffff;
+  --color-surface: rgb(255 255 255 / 0.95);
+  --color-surface-elevated: rgb(255 255 255 / 0.98);
+  --color-glass-bg: rgb(255 255 255 / 0.62);
+  --color-glass-border: rgb(255 255 255 / 0.7);
+  --color-overlay: rgb(15 23 42 / 0.12);
+  --color-shadow: rgb(17 24 39 / 0.12);
+  --color-code-bg: #f8fafc;
+  --color-code-header-bg: #eef4fb;
+  --color-code-text: #1e293b;
+  --color-code-border: #dbe4ef;
+  --color-code-button-bg: rgb(255 255 255 / 0.96);
+  --color-code-button-border: #cbd5e1;
+  --color-code-button-text: #475569;
+  --color-code-button-hover-bg: #ffffff;
+  --color-code-button-hover-border: #94a3b8;
+  --color-code-button-hover-text: #0f172a;
+  --color-scrollbar-track: transparent;
+  --color-scrollbar-thumb: rgb(96 165 250);
+  --color-scrollbar-thumb-hover: rgb(59 130 246);
+  --bg-offset-x: 0px;
+  --bg-offset-y: 0px;
+
+  --spacing-base: 1rem;
+  color-scheme: light;
+}
+
+.dark {
+  --color-bg: #0f141d;
+  --color-text-main: #f5f7fb;
+  --color-text-muted: #b4bfcc;
+  --color-border: rgb(255 255 255 / 0.14);
+  --color-accent: #53a3f1;
+  --color-nav-bg: rgb(15 20 29 / 0.92);
+  --color-surface: rgb(21 28 39 / 0.92);
+  --color-surface-elevated: rgb(24 32 45 / 0.98);
+  --color-glass-bg: rgb(21 28 39 / 0.6);
+  --color-glass-border: rgb(255 255 255 / 0.12);
+  --color-overlay: rgb(0 0 0 / 0.3);
+  --color-shadow: rgb(0 0 0 / 0.3);
+  --color-code-bg: #0f172a;
+  --color-code-header-bg: #0b1220;
+  --color-code-text: #e5e7eb;
+  --color-code-border: rgb(148 163 184 / 0.22);
+  --color-code-button-bg: rgb(15 23 42 / 0.92);
+  --color-code-button-border: rgb(148 163 184 / 0.45);
+  --color-code-button-text: #cbd5e1;
+  --color-code-button-hover-bg: rgb(30 41 59 / 0.96);
+  --color-code-button-hover-border: rgb(203 213 225 / 0.6);
+  --color-code-button-hover-text: #ffffff;
+  --color-scrollbar-track: transparent;
+  --color-scrollbar-thumb: rgb(96 165 250);
+  --color-scrollbar-thumb-hover: rgb(147 197 253);
+  color-scheme: dark;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

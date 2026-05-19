@@ -1,0 +1,763 @@
+/* Markdown / Nuxt Content prose */
+.markdown-content {
+  color: var(--color-text-main);
+  font-size: 1.1rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.markdown-content > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h1 {
+  display: none;
+}
+
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  scroll-margin-top: 6rem;
+  color: var(--color-text-main);
+}
+
+.markdown-content h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.7rem;
+}
+
+.markdown-content h3 {
+  margin: 1.7rem 0 0.65rem;
+  font-size: 1.45rem;
+}
+
+.markdown-content h4 {
+  margin: 1.4rem 0 0.55rem;
+  font-size: 1.25rem;
+}
+
+.markdown-content h5,
+.markdown-content h6 {
+  margin: 1.4rem 0 0.55rem;
+  font-size: 1.08rem;
+}
+
+.markdown-content h2 > a,
+.markdown-content h3 > a,
+.markdown-content h4 > a,
+.markdown-content h5 > a,
+.markdown-content h6 > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32em;
+  margin-inline-start: 0 !important;
+  padding-inline-start: 0 !important;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  opacity: 1;
+  text-decoration: none;
+}
+
+.markdown-content h2 > a > span:first-child,
+.markdown-content h3 > a > span:first-child,
+.markdown-content h4 > a > span:first-child,
+.markdown-content h5 > a > span:first-child,
+.markdown-content h6 > a > span:first-child {
+  display: none !important;
+}
+
+.markdown-content h2 > a::after,
+.markdown-content h3 > a::after,
+.markdown-content h4 > a::after {
+  content: '#';
+  order: 2;
+  color: var(--color-accent);
+  font-size: 1em;
+  line-height: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.markdown-content h2:hover > a::after,
+.markdown-content h2:focus-within > a::after,
+.markdown-content h3:hover > a::after,
+.markdown-content h3:focus-within > a::after,
+.markdown-content h4:hover > a::after,
+.markdown-content h4:focus-within > a::after {
+  opacity: 1;
+}
+
+.markdown-content p {
+  margin-bottom: 1.15rem;
+  color: var(--color-text-main);
+}
+
+.markdown-content a {
+  color: var(--color-accent);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.22em;
+}
+
+.markdown-content strong {
+  color: var(--color-text-main);
+  font-weight: 800;
+}
+
+.markdown-content em {
+  color: var(--color-text-main);
+}
+
+.markdown-content del {
+  color: var(--color-text-muted);
+}
+
+.markdown-content mark {
+  padding: 0.1rem 0.25rem;
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-radius: 0.3rem;
+  color: var(--color-text-main);
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.35rem;
+}
+
+.markdown-content ul {
+  list-style: disc;
+}
+
+.markdown-content ul ul {
+  list-style: circle;
+}
+
+.markdown-content ul ul ul {
+  list-style: square;
+}
+
+.markdown-content ol {
+  list-style: decimal;
+}
+
+.markdown-content li {
+  margin-bottom: 0.55rem;
+  padding-left: 0.15rem;
+}
+
+.markdown-content li::marker {
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
+.markdown-content li > p {
+  margin-bottom: 0.55rem;
+}
+
+.markdown-content input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.45rem;
+  accent-color: var(--color-accent);
+  transform: translateY(0.12rem);
+}
+
+.markdown-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.95rem 1.15rem;
+  background: color-mix(in srgb, var(--color-text-main) 4%, transparent);
+  border-left: 0.28rem solid var(--color-accent);
+  border-radius: 0;
+  color: var(--color-text-muted);
+}
+
+.markdown-content blockquote p:last-child,
+.markdown-content blockquote ul:last-child,
+.markdown-content blockquote ol:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content .markdown-callout {
+  --callout-accent: var(--color-accent);
+  --callout-bg: color-mix(in srgb, var(--callout-accent) 8%, var(--color-surface));
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--callout-bg);
+  border: 0;
+  border-left: 0.28rem solid var(--callout-accent);
+  border-radius: 0 0.85rem 0.85rem 0;
+  color: var(--color-text-main);
+}
+
+.markdown-content .markdown-callout-icon {
+  display: grid;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 1.55rem;
+  place-items: center;
+  color: var(--callout-accent);
+  font-size: 1.55rem;
+}
+
+.markdown-content .markdown-callout-icon svg,
+.markdown-content .markdown-callout-icon span {
+  display: block;
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+.markdown-content .markdown-callout[data-type='tip'] {
+  --callout-accent: #16a34a;
+}
+
+.markdown-content .markdown-callout[data-type='warning'] {
+  --callout-accent: #d6a000;
+}
+
+.markdown-content .markdown-callout[data-type='caution'] {
+  --callout-accent: #f04444;
+}
+
+.markdown-content .markdown-callout[data-type='details'] {
+  --callout-accent: #38bdf8;
+}
+
+.markdown-content .markdown-callout[data-type='collapse'] {
+  --callout-accent: #38bdf8;
+}
+
+.markdown-content .markdown-callout[data-type='expand'] {
+  --callout-accent: #2563eb;
+}
+
+.markdown-content .markdown-callout-title {
+  margin-bottom: 0.2rem;
+  color: var(--color-text-main);
+  font-size: 1.08rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.markdown-content .markdown-callout-content {
+  min-width: 0;
+}
+
+.markdown-content .markdown-callout-title.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.markdown-content .markdown-callout-body {
+  color: var(--color-text-main);
+  font-size: 1.08rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.markdown-content .markdown-callout-body > :last-child,
+.markdown-content .markdown-callout-body > :last-child > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-content .markdown-callout-body p {
+  margin-bottom: 0.45rem;
+  color: var(--color-text-main);
+}
+
+.markdown-content .markdown-details {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 0.13rem solid var(--callout-accent);
+  border-radius: 0.85rem;
+  box-shadow: 0 0.45rem 1.2rem color-mix(in srgb, var(--callout-accent) 9%, transparent);
+}
+
+.markdown-content .markdown-details > summary.markdown-callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 1rem 1.45rem;
+  background: color-mix(in srgb, var(--callout-accent) 10%, var(--color-surface));
+  color: var(--color-text-main);
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.markdown-content .markdown-details > summary.markdown-callout-title::-webkit-details-marker {
+  display: none;
+}
+
+.markdown-content .markdown-details-title-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.markdown-content .markdown-details > summary.markdown-callout-title::after {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: auto;
+  border-right: 0.13rem solid var(--callout-accent);
+  border-bottom: 0.13rem solid var(--callout-accent);
+  content: '';
+  transform: rotate(-45deg);
+  transition: transform 0.18s ease;
+}
+
+.markdown-content .markdown-details[open] > summary.markdown-callout-title::after {
+  transform: rotate(45deg) translateY(-0.08rem);
+}
+
+.markdown-content .markdown-details > .markdown-callout-body {
+  margin: 0;
+  padding: 1.35rem 1.45rem;
+  background: var(--color-surface);
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.markdown-content .markdown-details > .markdown-callout-body p {
+  margin-bottom: 0.7rem;
+}
+
+.markdown-content hr {
+  height: 1px;
+  margin: 2rem 0;
+  border: 0;
+  background: var(--color-border);
+}
+
+.markdown-content code {
+  padding: 0.15rem 0.35rem;
+  background: color-mix(in srgb, var(--color-accent) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-radius: 0.35rem;
+  color: var(--color-text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  margin: 1.35rem 0;
+  padding: 2.8rem 1rem 1rem;
+  overflow-x: auto;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
+  border-radius: 0.9rem;
+  color: var(--color-code-text);
+  scrollbar-color: rgb(96 165 250) transparent;
+  scrollbar-width: thin;
+}
+
+/* Code Line Numbers */
+.markdown-content pre.line-numbers {
+  padding-left: 0;
+}
+
+.markdown-content pre.line-numbers code .line[line] {
+  display: block;
+  counter-increment: line;
+  min-height: 1.7em;
+  padding-right: 1rem;
+}
+
+.markdown-content pre.line-numbers code .line[line]::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2.6rem;
+  margin-right: 0.75rem;
+  padding-right: 0.75rem;
+  border-right: 1px solid color-mix(in srgb, var(--color-code-border) 82%, transparent);
+  text-align: right;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.markdown-content pre.line-numbers code {
+  counter-reset: line calc(var(--line-number-start, 1) - 1);
+}
+
+/* Nuxt Content / UI Code Group (Tabs) overwrites */
+.markdown-content div:has(> div[role="tablist"]) {
+  position: relative;
+  margin: 1.35rem 0;
+  border-radius: 0.9rem;
+  border: 1px solid var(--color-code-border);
+  background: var(--color-code-bg);
+  overflow: hidden;
+  padding-top: 2.55rem;
+}
+
+.markdown-content div:has(> div[role="tablist"]) div[role="tabpanel"] {
+  margin: 0 !important;
+}
+
+.markdown-content div:has(> div[role="tablist"])::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2.55rem;
+  background: var(--color-code-header-bg);
+  border-bottom: 1px solid var(--color-code-border);
+  content: '';
+}
+
+.markdown-content div:has(> div[role="tablist"])::before {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  width: 0.72rem;
+  height: 0.72rem;
+  background: #ff5f57;
+  border-radius: 999px;
+  box-shadow:
+    1.15rem 0 0 #ffbd2e,
+    2.3rem 0 0 #28c840;
+  content: '';
+}
+
+/* Target the TabList to overlay exactly on top of our macOS header */
+.markdown-content div[role="tablist"] {
+  position: absolute !important;
+  top: 0 !important;
+  left: 4.5rem !important;
+  right: 0.5rem !important;
+  height: 2.55rem !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.2rem !important;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.markdown-content div[role="tablist"]::-webkit-scrollbar {
+  display: none;
+}
+
+.markdown-content div[role="tablist"] > div {
+  display: none !important; /* Hide the indicator div that Reka UI adds by default to prevent visual artifacts */
+}
+
+.markdown-content div[role="tablist"] button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  height: 1.7rem !important;
+  padding: 0 0.5rem !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: var(--color-text-muted) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace !important;
+  font-size: 0.82rem !important;
+  transition: all 0.2s ease !important;
+  border-radius: 0.35rem !important;
+}
+
+.markdown-content div[role="tablist"] button:hover {
+  color: var(--color-text-main) !important;
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent) !important;
+}
+
+.markdown-content div[role="tablist"] button[data-state="active"] {
+  color: var(--color-accent) !important;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-accent) 20%, transparent) !important;
+}
+
+/* Tab pane pre */
+.markdown-content div:has(> div[role="tablist"]) pre {
+  margin: 0 !important;
+  padding: 1.25rem !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.markdown-content div:has(> div[role="tablist"]) .line-numbers pre,
+.markdown-content div:has(> div[role="tablist"]) pre.line-numbers {
+  padding-left: 0 !important;
+}
+
+.markdown-content pre code {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.markdown-content div:has(> pre):not([role="tabpanel"]) {
+  position: relative;
+}
+
+.markdown-content div:has(> pre):not([role="tabpanel"])::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2.55rem;
+  background: var(--color-code-header-bg);
+  border: 1px solid var(--color-code-border);
+  border-bottom: 0;
+  border-radius: 0.9rem 0.9rem 0 0;
+  content: '';
+}
+
+.markdown-content div:has(> pre):not([role="tabpanel"])::before {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  width: 0.72rem;
+  height: 0.72rem;
+  background: #ff5f57;
+  border-radius: 999px;
+  box-shadow:
+    1.15rem 0 0 #ffbd2e,
+    2.3rem 0 0 #28c840;
+  content: '';
+}
+
+.markdown-content div:has(> pre[class*='language-']):not([role="tabpanel"])::after {
+  color: transparent;
+  font-size: 0;
+}
+
+.markdown-content div:has(> pre[class*='language-']) {
+  --code-language: 'Plain';
+}
+
+.markdown-content div:has(> pre.language-ts) {
+  --code-language: 'TypeScript';
+}
+
+.markdown-content div:has(> pre.language-js) {
+  --code-language: 'JavaScript';
+}
+
+.markdown-content div:has(> pre.language-vue) {
+  --code-language: 'Vue';
+}
+
+.markdown-content div:has(> pre.language-bash),
+.markdown-content div:has(> pre.language-sh),
+.markdown-content div:has(> pre.language-shell) {
+  --code-language: 'Shell';
+}
+
+.markdown-content div:has(> pre.language-json) {
+  --code-language: 'JSON';
+}
+
+.markdown-content div:has(> pre.language-diff) {
+  --code-language: 'Diff';
+}
+
+.markdown-content div:has(> pre.language-css) {
+  --code-language: 'CSS';
+}
+
+.markdown-content div:has(> pre.language-html) {
+  --code-language: 'HTML';
+}
+
+.markdown-content div:has(> pre.language-md),
+.markdown-content div:has(> pre.language-markdown) {
+  --code-language: 'Markdown';
+}
+
+.markdown-content div:has(> pre[class*='language-']):not([role="tabpanel"])::before {
+  color: var(--color-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 0.72rem;
+  text-indent: 3.45rem;
+  white-space: nowrap;
+  content: var(--code-language);
+}
+
+.markdown-content div:has(> pre) > button {
+  position: absolute !important;
+  top: 0.45rem;
+  right: 0.7rem !important;
+  z-index: 10;
+  display: grid !important;
+  width: 1.9rem;
+  height: 1.9rem;
+  min-width: 0;
+  place-items: center;
+  padding: 0;
+  background: var(--color-code-button-bg);
+  border: 1px solid var(--color-code-button-border);
+  border-radius: 0.45rem;
+  color: var(--color-code-button-text);
+  box-shadow: none;
+  opacity: 0 !important;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Pull the code group's copy button up into the header bar */
+.markdown-content div:has(> div[role="tablist"]) div[role="tabpanel"] > button {
+  top: -2.1rem !important;
+}
+
+/* Reveal copy button on hover for both normal blocks and code groups */
+.markdown-content div:has(> pre):hover > button,
+.markdown-content div:has(> pre):focus-within > button,
+.markdown-content div:has(> div[role="tablist"]):hover div[role="tabpanel"] > button,
+.markdown-content div:has(> div[role="tablist"]):focus-within div[role="tabpanel"] > button {
+  opacity: 1 !important;
+}
+
+.markdown-content div:has(> pre) > button:hover {
+  background: var(--color-code-button-hover-bg);
+  border-color: var(--color-code-button-hover-border);
+  color: var(--color-code-button-hover-text);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.markdown-content div:has(> pre) > button svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.markdown-content table {
+  display: block;
+  width: 100%;
+  margin: 1.35rem 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-content th {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-text-main);
+  font-weight: 800;
+}
+
+.markdown-content tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--color-accent) 4%, transparent);
+}
+
+.markdown-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.35rem auto;
+  border-radius: 0.9rem;
+}
+
+.markdown-content figure {
+  margin: 1.35rem 0;
+}
+
+.markdown-content figcaption {
+  margin-top: 0.55rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.markdown-content details:not(.markdown-details) {
+  margin: 1.35rem 0;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+}
+
+.markdown-content summary {
+  cursor: pointer;
+  color: var(--color-text-main);
+  font-weight: 800;
+}
+
+.markdown-content kbd {
+  display: inline-flex;
+  min-width: 1.6rem;
+  min-height: 1.45rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.05rem 0.38rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: 0.4rem;
+  color: var(--color-text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.85em;
+}
+
+.markdown-content sup a {
+  text-decoration: none;
+}
+
+.markdown-content .footnotes,
+.markdown-content section[data-footnotes] {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.markdown-content .footnotes p,
+.markdown-content section[data-footnotes] p {
+  color: var(--color-text-muted);
+}
