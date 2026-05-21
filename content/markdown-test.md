@@ -9,7 +9,8 @@ tags:
   - Nuxt Content
   - MDC
   - Syntax
-draft: true
+cover: /img/cover/1.webp
+draft: false
 ---
 
 # Markdown Syntax Test

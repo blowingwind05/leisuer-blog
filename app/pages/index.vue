@@ -1,28 +1,110 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 
+useHead(() => ({
+  title: 'Leisuer',
+  meta: [
+    {
+      name: 'description',
+      content: t('home.bio'),
+    },
+  ],
+}))
+
 const { data: aboutPage } = await useAsyncData('home-about-' + locale.value, async () => {
   const targetPath = locale.value === 'zh' ? '/about' : `/${locale.value}/about`
   let pageData = await queryCollection('content').path(targetPath).first()
-  
+
   if (!pageData && locale.value !== 'zh') {
     pageData = await queryCollection('content').path('/about').first()
   }
-  
+
   return pageData
 })
 
-const aboutPublishedAt = computed(() => formatContentDate(aboutPage.value?.created, locale.value))
-const aboutEditedAt = computed(() => formatContentDate(aboutPage.value?.updated, locale.value))
+const { data: homePosts } = await useAsyncData('home-posts-' + locale.value, async () => {
+  const docs = await queryCollection('content').all()
 
+  return docs
+    .filter(doc => doc.draft !== true && !['/about', '/index'].includes(doc.path))
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) {
+        return a.pinned ? -1 : 1
+      }
+
+      const dateA = new Date(String(a.updated ?? a.created ?? '')).getTime()
+      const dateB = new Date(String(b.updated ?? b.created ?? '')).getTime()
+
+      return (Number.isNaN(dateB) ? 0 : dateB) - (Number.isNaN(dateA) ? 0 : dateA)
+    })
+})
+const homeTaxonomies = computed(() => buildContentTaxonomies(homePosts.value ?? []))
+
+const postsPerPage = 4
+const currentPostPage = ref(1)
+const pinnedHomePosts = computed(() => (homePosts.value ?? []).filter(post => post.pinned))
+const regularHomePosts = computed(() => (homePosts.value ?? []).filter(post => !post.pinned))
+const recommendedHomePosts = shallowRef<NonNullable<typeof homePosts.value>>([])
+const refreshRecommendedHomePosts = () => {
+  recommendedHomePosts.value = [...regularHomePosts.value]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 2)
+}
+const totalPostPages = computed(() => Math.max(1, Math.ceil(regularHomePosts.value.length / postsPerPage)))
+const paginatedRegularHomePosts = computed(() => {
+  const start = (currentPostPage.value - 1) * postsPerPage
+
+  return regularHomePosts.value.slice(start, start + postsPerPage)
+})
+const homePostItems = computed(() => {
+  if (pinnedHomePosts.value.length === 0) {
+    return paginatedRegularHomePosts.value.map(post => ({ type: 'post' as const, post }))
+  }
+
+  return [
+    { type: 'pinned-divider' as const },
+    ...pinnedHomePosts.value.map(post => ({ type: 'post' as const, post })),
+    { type: 'all-divider' as const },
+    ...paginatedRegularHomePosts.value.map(post => ({ type: 'post' as const, post })),
+  ]
+})
+const canGoPreviousPostPage = computed(() => currentPostPage.value > 1)
+const canGoNextPostPage = computed(() => currentPostPage.value < totalPostPages.value)
+const goToPostPage = (page: number) => {
+  currentPostPage.value = Math.min(Math.max(page, 1), totalPostPages.value)
+}
+
+watch(totalPostPages, (pageCount) => {
+  if (currentPostPage.value > pageCount) {
+    currentPostPage.value = pageCount
+  }
+})
 const revealRoot = ref<HTMLElement | null>(null)
 let revealObserver: IntersectionObserver | null = null
 
-onMounted(() => {
-  if (!revealRoot.value || !('IntersectionObserver' in window)) {
-    revealRoot.value?.querySelectorAll('.reveal-card').forEach((element) => {
+const observeRevealCards = () => {
+  if (!revealRoot.value) {
+    return
+  }
+
+  if (!revealObserver) {
+    revealRoot.value.querySelectorAll('.reveal-card').forEach((element) => {
       element.classList.add('reveal-card-visible')
     })
+    return
+  }
+
+  revealRoot.value.querySelectorAll('.reveal-card:not(.reveal-card-visible)').forEach((element) => {
+    revealObserver?.observe(element)
+  })
+}
+
+onMounted(async () => {
+  refreshRecommendedHomePosts()
+  await nextTick()
+
+  if (!revealRoot.value || !('IntersectionObserver' in window)) {
+    observeRevealCards()
     return
   }
 
@@ -40,9 +122,18 @@ onMounted(() => {
     threshold: 0.18,
   })
 
-  revealRoot.value.querySelectorAll('.reveal-card').forEach((element) => {
-    revealObserver?.observe(element)
-  })
+  observeRevealCards()
+})
+
+watch(currentPostPage, async () => {
+  await nextTick()
+  observeRevealCards()
+})
+
+watch(regularHomePosts, async () => {
+  refreshRecommendedHomePosts()
+  await nextTick()
+  observeRevealCards()
 })
 
 onUnmounted(() => {
@@ -54,7 +145,7 @@ onUnmounted(() => {
   <div class="home-page">
     <div class="home relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-[var(--site-gutter)]">
       <div class="flex w-full flex-col items-center gap-8">
-        <section class="hero relative mx-auto w-full max-w-[var(--site-content-width)] px-[3vw] py-[4vw] [container-type:inline-size]">
+        <section class="hero relative mx-auto w-full max-w-[var(--site-content-width)] px-[3vw] pt-[2.6vw] pb-[1.8vw] [container-type:inline-size]">
           <div class="hero-panel"></div>
           <h1 class="huge-text">
             <span class="line-one">
@@ -66,50 +157,10 @@ onUnmounted(() => {
             </span>
             <span class="line-two">LEISUER</span>
           </h1>
+          <p class="hero-motto">- 猛志逸四海，骞翮思远翥 -</p>
         </section>
         <section class="w-full max-w-[var(--site-content-width)] md:hidden">
-          <div class="rounded-[1.25rem] border border-[var(--color-glass-border)] bg-[var(--color-glass-bg)] p-6 text-center backdrop-blur-[22px] backdrop-saturate-125">
-            <img
-              class="avatar-wiggle mx-auto size-48 rounded-full object-cover"
-              src="/img/avatar.png"
-              :alt="t('home.profileAlt')"
-            />
-            <h2 class="mt-4 mb-1 text-[1.45rem] leading-none font-bold text-[var(--color-text-main)]">Leisuer</h2>
-            <div class="mx-auto mt-3 mb-4 h-1 w-8 rounded-full bg-[var(--color-accent)]"></div>
-            <p class="mx-auto mb-5 max-w-80 text-base text-[var(--color-text-muted)]">
-              {{ t('home.bio') }}
-            </p>
-            <div class="flex justify-center gap-2" :aria-label="t('home.socialLinks')">
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="GitHub"
-              >
-                <UIcon name="simple-icons:github" class="size-5" />
-              </a>
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="Bilibili"
-              >
-                <UIcon name="simple-icons:bilibili" class="size-5" />
-              </a>
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="小红书"
-              >
-                <UIcon name="simple-icons:xiaohongshu" class="size-5" />
-              </a>
-              <a
-                href="mailto:"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="Email"
-              >
-                <UIcon name="lucide:mail" class="size-5" />
-              </a>
-            </div>
-          </div>
+          <HomeProfileCard />
         </section>
       </div>
       <a class="scroll-hint" href="#about" :aria-label="t('home.scrollHint')">
@@ -132,112 +183,37 @@ onUnmounted(() => {
       </a>
     </div>
 
-    <section id="about" ref="revealRoot" class="blog-section relative z-[1] mx-auto grid w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-1 gap-6 bg-transparent py-24 pt-8 lg:grid-cols-[minmax(14rem,20rem)_minmax(0,1fr)] lg:pt-40">
-      <aside class="hidden flex-col gap-6 md:flex">
-        <div class="reveal-card rounded-[1.25rem] bg-[var(--color-surface)] p-4 pb-5 text-center">
-          <img
-            class="avatar-wiggle mx-auto size-48 rounded-full object-cover"
-            src="/img/avatar.png"
-            :alt="t('home.profileAlt')"
-          />
-          <div>
-            <h2 class="mt-4 mb-1 text-[1.45rem] leading-none font-bold text-[var(--color-text-main)]">Leisuer</h2>
-            <div class="mx-auto mt-3 mb-4 h-1 w-8 rounded-full bg-[var(--color-accent)]"></div>
-            <p class="mx-auto mb-5 max-w-64 text-base text-[var(--color-text-muted)]">
-              {{ t('home.bio') }}
-            </p>
-            <div class="flex justify-center gap-2" :aria-label="t('home.socialLinks')">
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="GitHub"
-              >
-                <UIcon name="simple-icons:github" class="size-5" />
-              </a>
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="Bilibili"
-              >
-                <UIcon name="simple-icons:bilibili" class="size-5" />
-              </a>
-              <a
-                href="#"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="小红书"
-              >
-                <UIcon name="simple-icons:xiaohongshu" class="size-5" />
-              </a>
-              <a
-                href="mailto:"
-                class="grid size-11 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] text-[var(--color-accent)] transition hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--color-accent)_22%,transparent)] hover:opacity-100"
-                aria-label="Email"
-              >
-                <UIcon name="lucide:mail" class="size-5" />
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="reveal-card hidden rounded-[1.25rem] bg-[var(--color-surface)] px-5 py-6 md:block">
-          <h3 class="mb-5 flex items-center gap-3 text-xl font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-            {{ t('home.categories') }}
-          </h3>
-          <a href="#" class="flex items-center justify-between py-2 font-semibold text-[var(--color-text-main)]">
-            Examples
-            <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">4</span>
-          </a>
-          <a href="#" class="flex items-center justify-between py-2 font-semibold text-[var(--color-text-main)]">
-            Guides
-            <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">1</span>
-          </a>
-        </div>
-
-        <div class="reveal-card hidden rounded-[1.25rem] bg-[var(--color-surface)] px-5 py-6 md:block">
-          <h3 class="mb-5 flex items-center gap-3 text-xl font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-            {{ t('home.tags') }}
-          </h3>
-          <div class="flex flex-wrap gap-2">
-            <span class="rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-2 font-semibold text-[var(--color-accent)]">Leisuer</span>
-            <span class="rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-2 font-semibold text-[var(--color-accent)]">Markdown</span>
-            <span class="rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-2 font-semibold text-[var(--color-accent)]">Demo</span>
-            <span class="rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-2 font-semibold text-[var(--color-accent)]">Blogging</span>
-          </div>
-        </div>
+    <section id="about" ref="revealRoot" class="blog-section relative z-[1] mx-auto grid scroll-mt-20 w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-1 gap-6 bg-transparent py-24 pt-6 lg:scroll-mt-0 lg:grid-cols-[minmax(12rem,16rem)_minmax(0,1fr)] lg:pt-24">
+      <aside class="hidden flex-col gap-6 self-start md:flex lg:sticky lg:top-24">
+        <HomeProfileCard compact reveal />
+        <HomeTaxonomyCard :categories="homeTaxonomies.categories" :tags="homeTaxonomies.tags" reveal />
       </aside>
 
       <div class="flex flex-col gap-5">
-        <article class="reveal-card rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
-          <header class="mb-8">
-            <p class="mb-3 font-bold text-[var(--color-accent)]">{{ aboutPage?.category ?? 'About' }}</p>
-            <h2 class="mb-4 flex items-center gap-4 text-[clamp(2rem,4vw,4.4rem)] leading-none font-bold text-[var(--color-text-main)] before:inline-block before:h-6 before:w-1 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-              {{ aboutPage?.title ?? 'About Leisuer' }}
-            </h2>
-            <div class="flex flex-wrap gap-x-4 gap-y-1 text-[1.05rem] font-bold text-[var(--color-text-muted)]">
-              <span v-if="aboutPage?.created" class="inline-flex flex-wrap items-baseline gap-x-1">
-                <time :datetime="String(aboutPage.created)">
-                  {{ t('article.publishedAt') }} {{ aboutPublishedAt }}
-                </time>
-                <span v-if="aboutPage?.updated" class="modified-tooltip">
-                  （{{ t('article.modified') }}）
-                  <time class="modified-tooltip-content" :datetime="String(aboutPage.updated)">
-                    {{ t('article.updatedAt') }} {{ aboutEditedAt }}
-                  </time>
-                </span>
-              </span>
-              <span v-if="aboutPage?.tags?.length">{{ aboutPage.tags.join(' / ') }}</span>
-            </div>
-            <SummaryCard v-if="aboutPage?.description" :description="aboutPage.description" class="mt-5" />
-          </header>
-          <ContentRenderer
-            v-if="aboutPage"
-            class="markdown-content"
-            :value="aboutPage"
+        <HomeAboutArticleCard :page="aboutPage" collapsible default-collapsed heading-tag="h2" reveal />
+
+        <template v-for="item in homePostItems" :key="item.type === 'post' ? item.post.path : item.type">
+          <HomePostDivider
+            v-if="item.type === 'pinned-divider' || item.type === 'all-divider'"
+            :label="item.type === 'pinned-divider' ? t('home.pinnedPosts') : t('home.allPosts')"
+            reveal
           />
-          <p v-else class="text-lg text-[var(--color-text-main)]">
-            About content is being prepared.
-          </p>
-        </article>
+          <HomePostCard v-else :post="item.post" reveal />
+        </template>
+        <HomePostPagination
+          v-if="regularHomePosts.length > postsPerPage"
+          :current-page="currentPostPage"
+          :total-pages="totalPostPages"
+          :can-go-previous="canGoPreviousPostPage"
+          :can-go-next="canGoNextPostPage"
+          reveal
+          @page-change="goToPostPage"
+        />
+        <HomeRecommendedPosts
+          v-if="recommendedHomePosts.length"
+          :posts="recommendedHomePosts"
+          reveal
+        />
       </div>
 
       <a
@@ -290,7 +266,7 @@ onUnmounted(() => {
   gap: 0.75rem;
   width: max-content;
   color: #ffffff;
-  font-family: 'Nunito', 'Arial Rounded MT Bold', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI',
+  font-family: '寒蝉全圆体', 'Nunito', 'Arial Rounded MT Bold', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI',
     system-ui, sans-serif;
   font-size: var(--scroll-hint-font-size);
   font-weight: 700;
@@ -485,6 +461,36 @@ onUnmounted(() => {
     hero-image-drift-y 60s linear 0s infinite alternate;
 }
 
+.hero-motto {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  font-family: '寒蝉全圆体', 'Arial Rounded MT Bold', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI', system-ui, sans-serif;
+  font-size: clamp(1.6rem, 4cqw, 2.65rem);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  text-shadow: 0 0.08em 0.45em rgb(70 70 80 / 0.28);
+  color: transparent;
+  background-image: linear-gradient(
+    105deg,
+    var(--color-accent) 0%,
+    var(--color-accent) 38%,
+    rgb(225 242 255) 48%,
+    var(--color-accent) 58%,
+    var(--color-accent) 100%
+  );
+  background-size: 260% 100%;
+  background-position: 130% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0;
+  transform: translateY(0.5rem);
+  animation:
+    hero-motto-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) 2.6s forwards,
+    hero-motto-shine 5s ease-in-out 4s infinite;
+}
+
 @keyframes hero-title-reveal {
   from {
     opacity: 0;
@@ -566,6 +572,25 @@ onUnmounted(() => {
   }
 }
 
+@keyframes hero-motto-rise {
+  to {
+    opacity: 0.72;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-motto-shine {
+  0%,
+  18% {
+    background-position: 130% 50%;
+  }
+
+  92%,
+  100% {
+    background-position: -30% 50%;
+  }
+}
+
 @keyframes hero-image-drift {
   from {
     background-position-x: 0;
@@ -582,7 +607,7 @@ onUnmounted(() => {
   }
 
   to {
-    background-position-y: 0;
+    background-position-y: 40%;
   }
 }
 
@@ -631,6 +656,7 @@ onUnmounted(() => {
   .line-one-hi,
   .line-one-iam,
   .line-two,
+  .hero-motto,
   .scroll-hint,
   .scroll-hint-arrows path,
   .reveal-card {
@@ -639,32 +665,10 @@ onUnmounted(() => {
     clip-path: none;
     animation: none;
   }
-}
 
-.avatar-wiggle:hover {
-  animation: avatar-wiggle 0.7s ease-in-out;
-}
-
-@keyframes avatar-wiggle {
-  0%,
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-
-  20% {
-    transform: rotate(-4deg) scale(1.03);
-  }
-
-  40% {
-    transform: rotate(4deg) scale(1.03);
-  }
-
-  60% {
-    transform: rotate(-3deg) scale(1.02);
-  }
-
-  80% {
-    transform: rotate(3deg) scale(1.01);
+  .hero-motto {
+    background-position: 130% 50%;
   }
 }
+
 </style>

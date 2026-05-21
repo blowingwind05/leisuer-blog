@@ -1,8 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { getContentStats } from './app/utils/contentStats'
+
 export default defineNuxtConfig({
   modules: ['@nuxt/content', '@nuxt/ui', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
+  runtimeConfig: {
+    public: {
+      umamiScriptUrl: process.env.NUXT_PUBLIC_UMAMI_SCRIPT_URL || '',
+      umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || '',
+    },
+  },
   content: {
     build: {
       markdown: {
@@ -36,6 +44,14 @@ export default defineNuxtConfig({
       { code: 'en', name: 'English', language: 'en-US', file: 'en.ts' },
       { code: 'ja', name: '日本語', language: 'ja-JP', file: 'ja.ts' },
     ],
+  },
+  hooks: {
+    'content:file:afterParse'(ctx) {
+      const stats = getContentStats(ctx.content.body)
+
+      ctx.content.wordCount = stats.wordCount
+      ctx.content.readingMinutes = stats.readingMinutes
+    },
   },
   compatibilityDate: '2024-04-03',
 })
