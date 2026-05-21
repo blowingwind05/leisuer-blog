@@ -52,4 +52,12 @@ export default {
     title: 'Friends',
     description: 'A small collection of personal sites worth revisiting, with placeholders for now.',
   },
+  posts: {
+    title: 'Posts',
+    description: 'All published posts are collected here.',
+  },
+  bookmarks: {
+    title: 'Bookmarks',
+    description: 'A few useful links for now, ready to become a proper bookmarks page later.',
+  },
 }

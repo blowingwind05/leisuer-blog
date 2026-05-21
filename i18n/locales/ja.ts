@@ -52,4 +52,12 @@ export default {
     title: 'リンク',
     description: 'また訪れたくなる個人サイトを集める場所です。今は仮のリンクを置いています。',
   },
+  posts: {
+    title: '記事',
+    description: '公開済みの記事をここにまとめています。',
+  },
+  bookmarks: {
+    title: 'ブックマーク',
+    description: 'よく使うリンクを仮置きしています。あとで正式なブックマークページにできます。',
+  },
 }

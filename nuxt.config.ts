@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   modules: ['@nuxt/content', '@nuxt/ui', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
+  ui: {
+    fonts: false,
+  },
   runtimeConfig: {
     public: {
       umamiScriptUrl: process.env.NUXT_PUBLIC_UMAMI_SCRIPT_URL || '',

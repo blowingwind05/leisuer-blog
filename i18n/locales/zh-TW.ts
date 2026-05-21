@@ -52,4 +52,12 @@ export default {
     title: '友鏈',
     description: '一些值得常去看看的個人站點，先放幾位佔位朋友在這裡。',
   },
+  posts: {
+    title: '文章',
+    description: '這裡收納所有已經發佈的文章。',
+  },
+  bookmarks: {
+    title: '收藏',
+    description: '先放一些常用連結，之後可以繼續整理成正式收藏頁。',
+  },
 }
