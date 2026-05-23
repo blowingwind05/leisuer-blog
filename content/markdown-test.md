@@ -290,45 +290,45 @@ ___
 
 Local image:
 
-![Avatar](/img/avatar.png)
+![Avatar](/img/avatar.jpg)
 
 Image with title:
 
-![Background image](/img/background.png "Background")
+![Background image](/img/background.jpg "Background")
 
 Linked image:
 
-[![Avatar link](/img/avatar.png)](/img/avatar.png)
+[![Avatar link](/img/avatar.jpg)](/img/avatar.jpg)
 
 ### Markdown Image Width Tests
 
 Plain Markdown image:
 
-![Plain avatar](/img/avatar.png)
+![Plain avatar](/img/avatar.jpg)
 
 Markdown image with Nuxt MDC width and height attributes:
 
-![Avatar 96px](/img/avatar.png){width="96" height="96"}
+![Avatar 96px](/img/avatar.jpg){width="96" height="96"}
 
 Markdown image with class attributes:
 
-![Avatar with classes](/img/avatar.png){.w-24 .rounded-xl}
+![Avatar with classes](/img/avatar.jpg){.w-24 .rounded-xl}
 
 Markdown image with Tailwind arbitrary width class:
 
-![Avatar 12rem](/img/avatar.png){.w-[12rem] .rounded-2xl}
+![Avatar 12rem](/img/avatar.jpg){.w-[12rem] .rounded-2xl}
 
 Wide Markdown image:
 
-![Wide background](/img/background.png)
+![Wide background](/img/background.jpg)
 
 Wide Markdown image constrained by class:
 
-![Constrained background](/img/background.png){.max-w-md}
+![Constrained background](/img/background.jpg){.max-w-md}
 
 Markdown linked image:
 
-[![Open background](/img/avatar.png)](/img/background.png)
+[![Open background](/img/avatar.jpg)](/img/background.jpg)
 
 Missing image:
 

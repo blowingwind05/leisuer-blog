@@ -113,7 +113,7 @@ onMounted(() => {
     updateBackgroundOffset()
   }
 
-  backgroundImage.src = '/img/background.png'
+  backgroundImage.src = '/img/background.jpg'
 
   window.addEventListener('pointermove', handlePointerMove)
   window.addEventListener('resize', updateBackgroundOffset)
@@ -131,7 +131,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="page-background pointer-events-none fixed inset-x-0 top-16 -z-[2] h-[max(calc(100vh-4rem),54vw)] bg-[url('/img/background.png')] bg-[length:auto_104%] bg-[position:calc(50%+var(--bg-offset-x))_calc(50%+var(--bg-offset-y))] bg-no-repeat"></div>
+  <div class="page-background pointer-events-none fixed inset-x-0 top-16 -z-[2] h-[max(calc(100vh-4rem),54vw)] bg-[url('/img/background.jpg')] bg-[length:auto_104%] bg-[position:calc(50%+var(--bg-offset-x))_calc(50%+var(--bg-offset-y))] bg-no-repeat"></div>
   <div :id="sakuraLayerId" class="sakura-layer pointer-events-none fixed inset-x-0 top-16 -z-[1] h-[calc(100vh-4rem)] overflow-hidden" aria-hidden="true"></div>
 </template>
 

@@ -22,7 +22,7 @@ withDefaults(defineProps<{
     <img
       class="avatar-wiggle mx-auto rounded-full object-cover"
       :class="compact ? 'size-48' : 'size-48'"
-      src="/img/avatar.png"
+      src="/img/avatar.jpg"
       :alt="t('home.profileAlt')"
     />
     <div>

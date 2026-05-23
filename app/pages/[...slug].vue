@@ -24,6 +24,12 @@ const { data: page } = await useAsyncData('page-' + route.path, async () => {
   return pageData
 })
 
+const { data: taxonomies } = await useAsyncData('article-taxonomies-' + locale.value, async () => {
+  const docs = await queryCollection('content').all()
+
+  return buildContentTaxonomies(docs)
+})
+
 if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
@@ -48,6 +54,9 @@ const tocLinks = computed(() => {
 })
 
 const activeHeadingId = ref('')
+const activeSidebarPanel = ref<'toc' | 'site'>('toc')
+const postCategories = computed(() => taxonomies.value?.categories ?? [])
+const postTags = computed(() => taxonomies.value?.tags ?? [])
 const publishedAt = computed(() => formatContentDate(page.value?.created, locale.value))
 const editedAt = computed(() => formatContentDate(page.value?.updated, locale.value))
 
@@ -60,6 +69,24 @@ useHead(() => ({
     },
   ],
 }))
+
+const scrollActiveTocLinkIntoView = (newId: string) => {
+  if (!newId || !import.meta.client || activeSidebarPanel.value !== 'toc') return
+
+  nextTick(() => {
+    const linkElement = document.querySelector(`.toc-link[href="#${newId}"]`)
+    const tocCard = document.querySelector('.toc-card-scroll')
+
+    if (linkElement instanceof HTMLElement && tocCard instanceof HTMLElement) {
+      const linkTop = linkElement.offsetTop
+      const linkCenter = linkTop + linkElement.offsetHeight / 2
+      tocCard.scrollTo({
+        top: linkCenter - tocCard.clientHeight / 2,
+        behavior: 'smooth',
+      })
+    }
+  })
+}
 
 const updateActiveHeading = () => {
   if (!tocLinks.value.length) {
@@ -79,20 +106,13 @@ const updateActiveHeading = () => {
 }
 
 watch(activeHeadingId, (newId) => {
-  if (!newId || !import.meta.client) return
-  nextTick(() => {
-    const linkElement = document.querySelector(`.toc-link[href="#${newId}"]`)
-    const tocCard = document.querySelector('.toc-card')
+  scrollActiveTocLinkIntoView(newId)
+})
 
-    if (linkElement instanceof HTMLElement && tocCard instanceof HTMLElement) {
-      const linkTop = linkElement.offsetTop
-      const linkCenter = linkTop + linkElement.offsetHeight / 2
-      tocCard.scrollTo({
-        top: linkCenter - tocCard.clientHeight / 2,
-        behavior: 'smooth',
-      })
-    }
-  })
+watch(activeSidebarPanel, (panel) => {
+  if (panel === 'toc') {
+    scrollActiveTocLinkIntoView(activeHeadingId.value)
+  }
 })
 
 onMounted(() => {
@@ -109,30 +129,56 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="mx-auto grid w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-1 gap-6 py-10"
-    :class="tocLinks.length ? 'lg:grid-cols-[minmax(12rem,16rem)_minmax(0,1fr)]' : 'lg:grid-cols-1'"
+    class="article-layout mx-auto grid w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-1 gap-6 py-10 lg:pt-8"
+    :class="{ 'article-layout-has-sidebar': tocLinks.length }"
   >
-    <aside v-if="tocLinks.length" class="toc-sidebar hidden self-start lg:sticky lg:top-24 lg:block">
-      <nav class="toc-card rounded-[1.25rem] bg-[var(--color-surface)] p-4" aria-label="Table of contents">
-        <h2 class="mb-4 flex items-center gap-3 text-lg font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-          {{ t('article.toc') }}
-        </h2>
-        <ol class="grid gap-2">
-          <li
-            v-for="link in tocLinks"
-            :key="link.id"
-            :style="{ paddingLeft: `${Math.max(0, link.depth - 2) * 0.95}rem` }"
-          >
-            <a
-              class="toc-link block rounded-lg px-2.5 py-2 text-[0.98rem] font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-text-main)] hover:opacity-100"
-              :class="{ 'toc-link-active': activeHeadingId === link.id }"
-              :href="`#${link.id}`"
-            >
-              {{ link.text }}
-            </a>
-          </li>
-        </ol>
-      </nav>
+    <aside v-if="tocLinks.length" class="article-sidebar hidden self-start lg:sticky lg:top-24 lg:grid">
+      <div
+        class="article-sidebar-panel"
+        :class="`article-sidebar-panel-${activeSidebarPanel}`"
+      >
+        <div
+          class="article-site-panel"
+          :class="{ 'article-sidebar-panel-hidden': activeSidebarPanel !== 'site' }"
+          :aria-hidden="activeSidebarPanel !== 'site'"
+          :inert="activeSidebarPanel !== 'site'"
+          :aria-label="t('article.sitePanel')"
+        >
+          <HomeProfileCard compact />
+          <HomeTaxonomyCard :categories="postCategories" :tags="postTags" />
+        </div>
+
+        <nav
+          class="toc-card rounded-[1.25rem] bg-[var(--color-surface)]"
+          :class="{ 'article-sidebar-panel-hidden': activeSidebarPanel !== 'toc' }"
+          :aria-hidden="activeSidebarPanel !== 'toc'"
+          :inert="activeSidebarPanel !== 'toc'"
+          aria-label="Table of contents"
+        >
+          <h2 class="mx-4 mt-4 mb-2 flex items-center gap-3 text-lg font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
+            {{ t('article.toc') }}
+          </h2>
+          <div class="toc-card-scroll mx-4 mb-2">
+            <ol class="toc-list grid gap-2 pb-1">
+              <li
+                v-for="link in tocLinks"
+                :key="link.id"
+                :style="{ paddingLeft: `${Math.max(0, link.depth - 2) * 0.95}rem` }"
+              >
+                <a
+                  class="toc-link block rounded-lg px-2.5 py-2 text-[0.98rem] font-semibold text-[var(--color-text-muted)] transition hover:text-[var(--color-text-main)] hover:opacity-100"
+                  :class="{ 'toc-link-active': activeHeadingId === link.id }"
+                  :href="`#${link.id}`"
+                >
+                  {{ link.text }}
+                </a>
+              </li>
+            </ol>
+          </div>
+        </nav>
+      </div>
+
+      <ArticleSidebarTabs v-model:activeSidebarPanel="activeSidebarPanel" />
     </aside>
 
     <article class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
@@ -186,30 +232,140 @@ onUnmounted(() => {
         :value="page"
       />
     </article>
+    <ArticleScrollTools />
   </div>
 </template>
 
 <style scoped>
-.toc-sidebar {
+.article-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .article-layout-has-sidebar {
+    grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+  }
+}
+
+.article-sidebar {
+  --article-sidebar-card-gap: 1.5rem;
+  min-width: 0;
   width: 100%;
+  max-width: 16rem;
+  gap: var(--article-sidebar-card-gap);
+  justify-self: start;
+  overflow: hidden;
+}
+
+.article-sidebar-panel {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.article-site-panel {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--article-sidebar-card-gap);
+  overflow-x: hidden;
+  transform: translateX(calc(-100% - var(--article-sidebar-card-gap)));
+  transform-origin: center;
+  opacity: 0.28;
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.42s ease;
+  will-change: transform, opacity;
 }
 
 .toc-card {
-  max-height: calc(100vh - 8rem);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translateX(0);
+  transform-origin: center;
+  opacity: 1;
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.42s ease;
+  will-change: transform, opacity;
+}
+
+.toc-card-scroll {
+  --toc-scroll-fade: 1rem;
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
+  padding-top: 0.2rem;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--toc-scroll-fade), #000 calc(100% - var(--toc-scroll-fade)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--toc-scroll-fade), #000 calc(100% - var(--toc-scroll-fade)), transparent);
   scrollbar-color: var(--color-scrollbar-thumb) transparent;
   scrollbar-width: thin;
 }
 
-.toc-card::-webkit-scrollbar {
+.article-sidebar-panel-hidden {
+  pointer-events: none;
+}
+
+.article-sidebar-panel-toc .toc-card {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.article-sidebar-panel-toc .article-site-panel {
+  transform: translateX(calc(-100% - var(--article-sidebar-card-gap)));
+  opacity: 0.28;
+}
+
+.article-sidebar-panel-site .article-site-panel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.article-sidebar-panel-site .toc-card {
+  transform: translateX(calc(100% + var(--article-sidebar-card-gap)));
+  opacity: 0.28;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-site-panel,
+  .toc-card {
+    transition: none;
+  }
+}
+
+.article-site-panel > :deep(*) {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.article-site-panel :deep(.tag-scroll-fade),
+.article-site-panel :deep(.category-scroll-fade) {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.toc-card-scroll::-webkit-scrollbar {
   width: 0.25rem;
 }
 
-.toc-card::-webkit-scrollbar-track {
+.toc-card-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.toc-card::-webkit-scrollbar-thumb {
+.toc-card-scroll::-webkit-scrollbar-thumb {
   background: var(--color-scrollbar-thumb);
   border-radius: 999px;
 }

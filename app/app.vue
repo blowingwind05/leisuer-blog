@@ -3,6 +3,9 @@ const route = useRoute()
 const { locale } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const siteHeader = ref<{ closeMenus: () => void } | null>(null)
+const isInitialLoading = ref(true)
+
+provide('isInitialLoading', readonly(isInitialLoading))
 
 const languageCodeMap: Record<string, string> = {
   zh: 'zh-CN',
@@ -13,6 +16,19 @@ const languageCodeMap: Record<string, string> = {
 
 const pageKey = computed(() => route.path)
 const isBarePage = computed(() => route.path.endsWith('/xiaohongshu'))
+const criticalImageSources = [
+  '/img/background.jpg',
+  '/img/bg_herolineone.jpg',
+  '/img/bg_herolinetwo.jpg',
+]
+
+const preloadImage = (src: string) => new Promise<void>((resolve) => {
+  const image = new Image()
+
+  image.onload = () => resolve()
+  image.onerror = () => resolve()
+  image.src = src
+})
 
 useHead(() => ({
   title: 'Leisuer',
@@ -33,7 +49,11 @@ useHead(() => ({
     { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
     { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
     { rel: 'manifest', href: '/site.webmanifest' },
-    { rel: 'stylesheet', href: 'https://fontsapi.zeoseven.com/3/main/result.css' },
+    {
+      rel: 'stylesheet',
+      href: 'https://fontsapi.zeoseven.com/3/main/result.css?v=20260522',
+      referrerpolicy: 'no-referrer',
+    },
   ],
   script: runtimeConfig.public.umamiScriptUrl && runtimeConfig.public.umamiWebsiteId
     ? [
@@ -63,6 +83,22 @@ watch(
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   },
 )
+
+onMounted(async () => {
+  const finishLoading = async () => {
+    await Promise.all(criticalImageSources.map(src => preloadImage(src)))
+    isInitialLoading.value = false
+  }
+
+  if (document.readyState === 'complete') {
+    void finishLoading()
+    return
+  }
+
+  window.addEventListener('load', () => {
+    void finishLoading()
+  }, { once: true })
+})
 </script>
 
 <template>
@@ -70,9 +106,16 @@ watch(
   <NuxtPage v-if="isBarePage" :key="pageKey" />
 
   <template v-else>
+    <div class="app-loading" :class="{ 'app-loading-hidden': !isInitialLoading }" aria-hidden="true">
+      <div class="app-loading-panel">
+        <div class="app-loading-ring"></div>
+        <div class="app-loading-text">Loading</div>
+      </div>
+    </div>
     <SiteHeader ref="siteHeader" />
     <main class="relative isolate flex min-h-screen flex-1 flex-col overflow-x-clip pt-16">
       <SiteBackground />
+      <SiteClickFireworks />
       <div class="flex-1">
         <NuxtPage :key="pageKey" />
       </div>
@@ -80,3 +123,51 @@ watch(
     </main>
   </template>
 </template>
+
+<style scoped>
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease;
+}
+
+.app-loading-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-loading-panel {
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  color: var(--color-text-main);
+}
+
+.app-loading-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0.28rem solid color-mix(in srgb, var(--color-accent) 14%, transparent);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: app-loading-spin 0.9s linear infinite;
+}
+
+.app-loading-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+@keyframes app-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

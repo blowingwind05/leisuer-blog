@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
+const isInitialLoading = inject<Readonly<Ref<boolean>>>('isInitialLoading', ref(false))
+const shouldRenderAnimatedHero = computed(() => !isInitialLoading.value)
 
 useHead(() => ({
   title: 'Leisuer',
@@ -146,8 +148,9 @@ onUnmounted(() => {
     <div class="home relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-[var(--site-gutter)]">
       <div class="flex w-full flex-col items-center gap-8">
         <section class="hero relative mx-auto w-full max-w-[var(--site-content-width)] px-[3vw] pt-[2.6vw] pb-[1.8vw] [container-type:inline-size]">
-          <div class="hero-panel"></div>
-          <h1 class="huge-text">
+          <div v-if="shouldRenderAnimatedHero" class="hero-panel"></div>
+          <div v-else class="hero-panel hero-panel-static"></div>
+          <h1 v-if="shouldRenderAnimatedHero" class="huge-text">
             <span class="line-one">
               <span class="line-one-gray">
                 <span class="line-one-hi">HI,</span>
@@ -157,7 +160,14 @@ onUnmounted(() => {
             </span>
             <span class="line-two">LEISUER</span>
           </h1>
-          <p class="hero-motto">- 猛志逸四海，骞翮思远翥 -</p>
+          <h1 v-else class="huge-text huge-text-static" aria-hidden="true">
+            <span class="line-one">
+              <span class="line-one-static">HI, I AM</span>
+            </span>
+            <span class="line-two-static">LEISUER</span>
+          </h1>
+          <p v-if="shouldRenderAnimatedHero" class="hero-motto">- 猛志逸四海，骞翮思远翥 -</p>
+          <p v-else class="hero-motto hero-motto-static">- 猛志逸四海，骞翮思远翥 -</p>
         </section>
         <section class="w-full max-w-[var(--site-content-width)] md:hidden">
           <HomeProfileCard />
@@ -366,6 +376,12 @@ onUnmounted(() => {
   animation: hero-panel-rise 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.hero-panel-static {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
 .huge-text {
   position: relative;
   z-index: 1;
@@ -377,6 +393,21 @@ onUnmounted(() => {
   letter-spacing: -0.04em;
   line-height: 0.95;
   text-transform: uppercase;
+}
+
+.huge-text-static {
+  color: #cbcbcb;
+}
+
+.line-one-static,
+.line-two-static {
+  display: inline-block;
+}
+
+.line-two-static {
+  font-size: 22.6cqw;
+  font-style: italic;
+  margin-left: -0.05em;
 }
 
 .line-two,
@@ -414,7 +445,7 @@ onUnmounted(() => {
   left: 0;
   width: max-content;
   white-space: nowrap;
-  background-image: url('/img/7c9da87600c333a45ef720502e30ea2c.jpg');
+  background-image: url('/img/bg_herolineone.jpg');
   background-size: 140%;
   background-position: 0 50%;
   opacity: 1;
@@ -452,7 +483,7 @@ onUnmounted(() => {
 .line-two {
   font-size: 22.6cqw;
   font-style: italic;
-  background-image: url('/img/3367cc759193fdee11352d04eaef4a42.jpg');
+  background-image: url('/img/bg_herolinetwo.jpg');
   background-size: cover;
   background-position: center 100%;
   margin-left: -0.05em;
@@ -489,6 +520,12 @@ onUnmounted(() => {
   animation:
     hero-motto-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) 2.6s forwards,
     hero-motto-shine 5s ease-in-out 4s infinite;
+}
+
+.hero-motto-static {
+  opacity: 0.72;
+  transform: none;
+  animation: none;
 }
 
 @keyframes hero-title-reveal {

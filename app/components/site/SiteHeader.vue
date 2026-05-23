@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const route = useRoute()
 const { locale, locales, t } = useI18n()
 const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
@@ -26,6 +27,22 @@ const menuTags = computed(() => menuTaxonomies.value?.tags ?? [])
 const isDark = computed(() => colorMode.value === 'dark')
 const colorModeIcon = computed(() => isDark.value ? 'lucide:sun' : 'lucide:moon')
 const colorModeLabel = computed(() => isDark.value ? '切换到明亮模式' : '切换到黑暗模式')
+const knownLocaleCodes = computed(() => availableLocales.value.map(item => item.code))
+const normalizedRoutePath = computed(() => {
+  const segments = route.path.split('/').filter(Boolean)
+
+  if (segments[0] && knownLocaleCodes.value.includes(segments[0])) {
+    segments.shift()
+  }
+
+  return `/${segments.join('/')}`
+})
+const nonPostContentPaths = new Set(['/about', '/friends', '/bookmarks', '/xiaohongshu'])
+const isPostsActive = computed(() => {
+  const path = normalizedRoutePath.value
+
+  return path === '/posts' || (path !== '/' && !nonPostContentPaths.has(path))
+})
 
 const toggleColorMode = async () => {
   const nextMode = isDark.value ? 'light' : 'dark'
@@ -71,7 +88,7 @@ defineExpose({ closeMenus })
     <div class="mx-auto grid h-full w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-[auto_minmax(0,1fr)] items-stretch gap-x-3 sm:gap-x-6 md:gap-x-3">
       <div class="logo flex h-full self-stretch">
         <NuxtLink class="inline-flex h-full self-stretch items-center gap-[0.55rem] text-xl leading-none font-extrabold tracking-[-0.05em] text-[var(--color-text-main)]" :to="localePath({ path: '/', hash: '#about' })">
-          <img class="block size-8 shrink-0 rounded-lg object-cover" src="/img/avatar.png" alt="" />
+          <img class="block size-8 shrink-0 rounded-lg object-cover" src="/img/avatar.jpg" alt="" />
           <span class="max-sm:hidden">Leisuer.</span>
         </NuxtLink>
       </div>
@@ -81,7 +98,7 @@ defineExpose({ closeMenus })
             <UIcon name="lucide:house" class="nav-link-icon" />
             <span>{{ t('nav.home') }}</span>
           </NuxtLink>
-          <NuxtLink class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100" :to="localePath('/posts')">
+          <NuxtLink class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100" :class="{ 'nav-link-active': isPostsActive }" :to="localePath('/posts')">
             <UIcon name="lucide:file-text" class="nav-link-icon" />
             <span>{{ t('nav.posts') }}</span>
           </NuxtLink>
@@ -159,7 +176,7 @@ defineExpose({ closeMenus })
                   <div class="flex w-full flex-col gap-8">
                     <section class="border-b border-[var(--color-border)] pb-6">
                       <div class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4">
-                        <img class="size-18 rounded-full object-cover" src="/img/avatar.png" alt="" />
+                        <img class="size-18 rounded-full object-cover" src="/img/avatar.jpg" alt="" />
                         <div>
                           <h2 class="m-0 mb-1.5 text-[1.6rem] leading-none text-[var(--color-text-main)]">Leisuer</h2>
                           <p class="m-0 max-w-none leading-relaxed text-[var(--color-text-muted)]">{{ t('home.bio') }}</p>
@@ -188,7 +205,7 @@ defineExpose({ closeMenus })
                           <span class="text-lg text-[var(--color-text-muted)]">{{ menuCategories.length }}</span>
                         </h3>
                         <div class="mobile-menu-category-list grid max-h-[7.6rem] gap-1 overflow-y-auto pb-2">
-                          <a v-for="category in menuCategories" :key="category.name" href="#" class="flex items-center justify-between rounded-lg px-2 py-1.5 font-semibold text-[var(--color-text-main)] hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:opacity-100">
+                          <a v-for="category in menuCategories" :key="category.name" href="#" class="flex items-center justify-between rounded-lg px-2 py-1.5 font-semibold text-[var(--color-text-main)] hover:bg-[color-mix(in_srgb,var(--color-text-muted)_12%,transparent)] hover:opacity-100">
                             {{ category.name }}
                             <span class="text-[var(--color-accent)]">{{ category.count }}</span>
                           </a>
@@ -222,7 +239,7 @@ defineExpose({ closeMenus })
                         <UIcon name="lucide:house" class="size-5 shrink-0" />
                         <span>{{ t('nav.home') }}</span>
                       </NuxtLink>
-                      <NuxtLink class="mobile-menu-option inline-flex items-center gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]" :to="localePath('/posts')" @click="isNavMenuOpen = false">
+                      <NuxtLink class="mobile-menu-option inline-flex items-center gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]" :class="{ 'mobile-menu-option-active': isPostsActive }" :to="localePath('/posts')" @click="isNavMenuOpen = false">
                         <UIcon name="lucide:file-text" class="size-5 shrink-0" />
                         <span>{{ t('nav.posts') }}</span>
                       </NuxtLink>
@@ -277,15 +294,18 @@ defineExpose({ closeMenus })
 }
 
 .nav-link:hover::after,
-.nav-link.router-link-exact-active::after {
+.nav-link.router-link-exact-active::after,
+.nav-link-active::after {
   transform: scaleX(1);
 }
 
-.nav-link.router-link-exact-active:hover::after {
+.nav-link.router-link-exact-active:hover::after,
+.nav-link-active:hover::after {
   animation: nav-active-underline-bounce 0.34s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.nav-link.router-link-exact-active {
+.nav-link.router-link-exact-active,
+.nav-link-active {
   color: var(--color-text-main);
   opacity: 1;
 }
@@ -360,7 +380,8 @@ defineExpose({ closeMenus })
   transform: rotate(90deg);
 }
 
-.mobile-menu-option.router-link-exact-active {
+.mobile-menu-option.router-link-exact-active,
+.mobile-menu-option-active {
   color: var(--color-accent);
   background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
   opacity: 1;
@@ -375,7 +396,7 @@ defineExpose({ closeMenus })
 }
 
 .mobile-menu-option:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  background-color: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
   opacity: 1;
 }
 
