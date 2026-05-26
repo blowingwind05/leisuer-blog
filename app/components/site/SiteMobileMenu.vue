@@ -86,6 +86,7 @@ const hasMobileMenuToc = computed(() => {
   return normalizedRoutePath.value !== '/' && mobileMenuTocLinks.value.length > 0
 })
 const activeMobileHeadingId = ref('')
+const mobileReadingProgress = ref(0)
 const defaultMobileSidebarPanel = computed<'site' | 'toc'>(() => hasMobileMenuToc.value ? 'toc' : 'site')
 
 const closeMobileMenu = () => {
@@ -110,13 +111,44 @@ const updateActiveMobileHeading = () => {
   activeMobileHeadingId.value = activeHeading?.id ?? ''
 }
 
+const updateMobileReadingProgress = () => {
+  if (!hasMobileMenuToc.value || !import.meta.client) {
+    mobileReadingProgress.value = 0
+    return
+  }
+
+  const article = document.querySelector('article')
+
+  if (!(article instanceof HTMLElement)) {
+    mobileReadingProgress.value = 0
+    return
+  }
+
+  const articleTop = article.offsetTop
+  const articleHeight = article.offsetHeight
+  const readableDistance = articleHeight - window.innerHeight
+
+  if (readableDistance <= 0) {
+    mobileReadingProgress.value = window.scrollY >= articleTop ? 100 : 0
+    return
+  }
+
+  const progress = ((window.scrollY - articleTop) / readableDistance) * 100
+  mobileReadingProgress.value = Math.min(100, Math.max(0, progress))
+}
+
+const updateMobileArticleScrollState = () => {
+  updateActiveMobileHeading()
+  updateMobileReadingProgress()
+}
+
 const toggleMobileMenu = () => {
   isOpen.value = !isOpen.value
 }
 
 watch(() => route.fullPath, () => {
   activeMobileSidebarPanel.value = defaultMobileSidebarPanel.value
-  updateActiveMobileHeading()
+  updateMobileArticleScrollState()
 })
 
 watch(hasMobileMenuToc, (hasToc) => {
@@ -126,19 +158,19 @@ watch(hasMobileMenuToc, (hasToc) => {
 watch(isOpen, (nextOpen) => {
   if (nextOpen) {
     activeMobileSidebarPanel.value = defaultMobileSidebarPanel.value
-    updateActiveMobileHeading()
+    updateMobileArticleScrollState()
   }
 })
 
 onMounted(() => {
-  updateActiveMobileHeading()
-  window.addEventListener('scroll', updateActiveMobileHeading, { passive: true })
-  window.addEventListener('resize', updateActiveMobileHeading)
+  updateMobileArticleScrollState()
+  window.addEventListener('scroll', updateMobileArticleScrollState, { passive: true })
+  window.addEventListener('resize', updateMobileArticleScrollState)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updateActiveMobileHeading)
-  window.removeEventListener('resize', updateActiveMobileHeading)
+  window.removeEventListener('scroll', updateMobileArticleScrollState)
+  window.removeEventListener('resize', updateMobileArticleScrollState)
 })
 </script>
 
@@ -260,8 +292,12 @@ onUnmounted(() => {
                 :inert="activeMobileSidebarPanel !== 'toc'"
                 aria-label="Table of contents"
               >
-                <h2 class="mb-4 flex items-center gap-3 text-xl font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-                  {{ t('article.toc') }}
+                <h2 class="mobile-menu-toc-heading">
+                  <span class="mobile-menu-toc-title">
+                    <span class="mobile-menu-toc-title-mark" aria-hidden="true"></span>
+                    {{ t('article.toc') }}
+                  </span>
+                  <ArticleReadingProgress :progress="mobileReadingProgress" />
                 </h2>
                 <ol class="grid gap-2">
                   <li
@@ -364,6 +400,34 @@ onUnmounted(() => {
 
 .mobile-menu-panel-hidden {
   pointer-events: none;
+}
+
+.mobile-menu-toc-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-main);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mobile-menu-toc-title {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-menu-toc-title-mark {
+  display: inline-block;
+  width: 0.25rem;
+  height: 1.25rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--color-accent);
 }
 
 .mobile-menu-toc-link {

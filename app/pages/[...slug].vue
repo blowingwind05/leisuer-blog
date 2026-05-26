@@ -55,6 +55,8 @@ const tocLinks = computed(() => {
 
 const activeHeadingId = ref('')
 const activeSidebarPanel = ref<'toc' | 'site'>('toc')
+const articleElement = ref<HTMLElement | null>(null)
+const readingProgress = ref(0)
 const postCategories = computed(() => taxonomies.value?.categories ?? [])
 const postTags = computed(() => taxonomies.value?.tags ?? [])
 const publishedAt = computed(() => formatContentDate(page.value?.created, locale.value))
@@ -106,6 +108,30 @@ const updateActiveHeading = () => {
   activeHeadingId.value = activeHeading?.id ?? ''
 }
 
+const updateReadingProgress = () => {
+  if (!articleElement.value) {
+    readingProgress.value = 0
+    return
+  }
+
+  const articleTop = articleElement.value.offsetTop
+  const articleHeight = articleElement.value.offsetHeight
+  const readableDistance = articleHeight - window.innerHeight
+
+  if (readableDistance <= 0) {
+    readingProgress.value = window.scrollY >= articleTop ? 100 : 0
+    return
+  }
+
+  const progress = ((window.scrollY - articleTop) / readableDistance) * 100
+  readingProgress.value = Math.min(100, Math.max(0, progress))
+}
+
+const updateArticleScrollState = () => {
+  updateActiveHeading()
+  updateReadingProgress()
+}
+
 watch(activeHeadingId, (newId) => {
   scrollActiveTocLinkIntoView(newId)
 })
@@ -117,14 +143,14 @@ watch(activeSidebarPanel, (panel) => {
 })
 
 onMounted(() => {
-  updateActiveHeading()
-  window.addEventListener('scroll', updateActiveHeading, { passive: true })
-  window.addEventListener('resize', updateActiveHeading)
+  updateArticleScrollState()
+  window.addEventListener('scroll', updateArticleScrollState, { passive: true })
+  window.addEventListener('resize', updateArticleScrollState)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updateActiveHeading)
-  window.removeEventListener('resize', updateActiveHeading)
+  window.removeEventListener('scroll', updateArticleScrollState)
+  window.removeEventListener('resize', updateArticleScrollState)
 })
 </script>
 
@@ -156,8 +182,12 @@ onUnmounted(() => {
           :inert="activeSidebarPanel !== 'toc'"
           aria-label="Table of contents"
         >
-          <h2 class="mx-4 mt-4 mb-2 flex items-center gap-3 text-lg font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
-            {{ t('article.toc') }}
+          <h2 class="toc-card-heading">
+            <span class="toc-card-title">
+              <span class="toc-card-title-mark" aria-hidden="true"></span>
+              {{ t('article.toc') }}
+            </span>
+            <ArticleReadingProgress :progress="readingProgress" />
           </h2>
           <div class="toc-card-scroll mx-4 mb-4">
             <ol class="toc-list grid gap-2 pb-2">
@@ -182,7 +212,7 @@ onUnmounted(() => {
       <ArticleSidebarTabs v-model:activeSidebarPanel="activeSidebarPanel" />
     </aside>
 
-    <article class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
+    <article ref="articleElement" class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
       <header class="mb-8">
         <p v-if="categoryPath.length" class="article-category mb-3 inline-flex font-bold text-[var(--color-accent)]">
           <ContentCategoryPath :category="page.category" segment-hover />
@@ -298,6 +328,34 @@ onUnmounted(() => {
     transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.42s ease;
   will-change: transform, opacity;
+}
+
+.toc-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1rem 1rem 0.5rem;
+  color: var(--color-text-main);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.toc-card-title {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toc-card-title-mark {
+  display: inline-block;
+  width: 0.25rem;
+  height: 1.25rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--color-accent);
 }
 
 .toc-card-scroll {

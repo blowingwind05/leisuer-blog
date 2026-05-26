@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import bookmarks from '~/data/bookmarks.json'
+
 const { locale, t } = useI18n()
 
 useHead(() => ({
@@ -19,27 +21,43 @@ const { data: taxonomies } = await useAsyncData('bookmarks-taxonomies-' + locale
 
 const bookmarkCategories = computed(() => taxonomies.value?.categories ?? [])
 const bookmarkTags = computed(() => taxonomies.value?.tags ?? [])
+const activeBookmarkCategory = ref('全部')
+const bookmarkCategoryIcons: Record<string, string> = {
+  字体: 'lucide:type',
+  图片: 'lucide:image',
+  音频: 'lucide:audio-lines',
+  设计灵感: 'lucide:sparkles',
+  图标: 'lucide:apple',
+  插画: 'lucide:palette',
+  前端: 'lucide:code-2',
+  背景视频: 'lucide:video',
+  论文: 'lucide:book-open-text',
+}
+const bookmarkIcon = (category: string, icon?: string) => icon ?? bookmarkCategoryIcons[category] ?? 'lucide:bookmark'
+const bookmarkFaviconUrl = (url: string) => {
+  const hostname = new URL(url).hostname
 
-const bookmarks = [
-  {
-    title: 'Nuxt',
-    description: 'Nuxt 官方文档和生态入口。',
-    url: 'https://nuxt.com',
-    icon: 'simple-icons:nuxt',
-  },
-  {
-    title: 'Vue',
-    description: 'Vue 官方文档，前端开发常用参考。',
-    url: 'https://vuejs.org',
-    icon: 'simple-icons:vuedotjs',
-  },
-  {
-    title: 'MDN Web Docs',
-    description: 'Web API、CSS、HTML 与 JavaScript 参考。',
-    url: 'https://developer.mozilla.org',
-    icon: 'simple-icons:mdnwebdocs',
-  },
-]
+  return `/img/bookmarks/favicons/${hostname}.ico`
+}
+const failedBookmarkImages = ref(new Set<string>())
+const bookmarkImageUrl = (bookmark: typeof bookmarks[number]) => {
+  if (bookmark.image === false || failedBookmarkImages.value.has(bookmark.title)) {
+    return undefined
+  }
+
+  return bookmark.image ?? bookmarkFaviconUrl(bookmark.url)
+}
+const markBookmarkImageFailed = (title: string) => {
+  failedBookmarkImages.value = new Set([...failedBookmarkImages.value, title])
+}
+const bookmarkCategoryTabs = computed(() => {
+  return ['全部', ...Array.from(new Set(bookmarks.map(bookmark => bookmark.category)))]
+})
+const visibleBookmarks = computed(() => {
+  if (activeBookmarkCategory.value === '全部') return bookmarks
+
+  return bookmarks.filter(bookmark => bookmark.category === activeBookmarkCategory.value)
+})
 </script>
 
 <template>
@@ -57,22 +75,47 @@ const bookmarks = [
         </h1>
       </header>
 
+      <nav class="bookmark-category-nav" aria-label="收藏分类">
+        <button
+          v-for="category in bookmarkCategoryTabs"
+          :key="category"
+          class="bookmark-category-tab"
+          :class="{ 'bookmark-category-tab-active': activeBookmarkCategory === category }"
+          type="button"
+          :aria-pressed="activeBookmarkCategory === category"
+          @click="activeBookmarkCategory = category"
+        >
+          <span>{{ category }}</span>
+        </button>
+      </nav>
+
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <a
-          v-for="bookmark in bookmarks"
+          v-for="bookmark in visibleBookmarks"
           :key="bookmark.title"
           class="bookmark-card"
           :href="bookmark.url"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <UIcon :name="bookmark.icon" class="size-6 shrink-0 text-[var(--color-accent)]" />
+          <span class="bookmark-media" aria-hidden="true">
+            <img
+              v-if="bookmarkImageUrl(bookmark)"
+              class="bookmark-image"
+              :src="bookmarkImageUrl(bookmark)"
+              alt=""
+              loading="lazy"
+              @error="markBookmarkImageFailed(bookmark.title)"
+            />
+            <UIcon :name="bookmarkIcon(bookmark.category, bookmark.icon)" class="bookmark-icon bookmark-icon-fallback" />
+          </span>
           <span class="min-w-0">
             <span class="bookmark-name">
               <span class="truncate">{{ bookmark.title }}</span>
               <UIcon name="lucide:arrow-up-right" class="bookmark-arrow" />
             </span>
             <span class="bookmark-description">{{ bookmark.description }}</span>
+            <span class="bookmark-category">{{ bookmark.category }}</span>
           </span>
         </a>
       </div>
@@ -125,9 +168,48 @@ const bookmarks = [
   }
 }
 
+.bookmark-category-nav {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  padding: 0.65rem;
+  scrollbar-width: thin;
+}
+
+.bookmark-category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+  border-radius: 0.8rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-text-muted);
+  font-weight: 800;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.bookmark-category-tab:hover {
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-main);
+  opacity: 1;
+}
+
+.bookmark-category-tab-active,
+.bookmark-category-tab-active:hover {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent);
+  opacity: 1;
+}
+
 .bookmark-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 2.75rem minmax(0, 1fr);
   align-items: center;
   gap: 1rem;
   border-radius: 1rem;
@@ -143,6 +225,38 @@ const bookmarks = [
   box-shadow: 0 0.85rem 1.6rem color-mix(in srgb, var(--color-accent) 14%, transparent);
   opacity: 1;
   transform: translateY(-2px);
+}
+
+.bookmark-media {
+  position: relative;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+}
+
+.bookmark-image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-surface);
+}
+
+.bookmark-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.bookmark-icon-fallback {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
 }
 
 .bookmark-name {
@@ -180,5 +294,18 @@ const bookmarks = [
   line-height: 1.55;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.bookmark-category {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  padding: 0.2rem 0.55rem;
+  color: var(--color-accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 </style>

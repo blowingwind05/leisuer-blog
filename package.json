@@ -5,6 +5,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "bookmarks:favicons": "node scripts/download-bookmark-favicons.mjs",
+    "bookmarks:favicons:force": "node scripts/download-bookmark-favicons.mjs --force",
     "generate": "nuxt generate",
     "preview": "nuxt preview"
   },
