@@ -1,4 +1,7 @@
 export default {
+  common: {
+    confirm: '確定',
+  },
   nav: {
     home: '首頁',
     posts: '文章',
@@ -39,6 +42,7 @@ export default {
     backToTop: '回到頂部',
     scrollHint: '向下滑',
     expandProfileHint: '點擊右側展開自我介紹',
+    expandProfileNotice: '請點擊右上角按鈕展開自我介紹',
     pinnedPosts: '置頂文章',
     allPosts: '全部文章',
     postPagination: '文章分頁',
@@ -60,6 +64,11 @@ export default {
   posts: {
     title: '文章',
     description: '這裡收納所有已經發佈的文章。',
+    menu: '文章選單',
+    archive: '歸檔',
+    archiveTitle: '共 {count} 篇',
+    archiveDescription: '按發佈時間整理文章，給舊想法留下一條清楚的時間線。',
+    undated: '未註明日期',
   },
   bookmarks: {
     title: '收藏',

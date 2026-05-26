@@ -4,7 +4,7 @@ defineProps<{
     path: string
     title?: string
     description?: string
-    category?: string
+    category?: string | string[]
     cover?: string
   }[]
   reveal?: boolean
@@ -28,7 +28,7 @@ const localePath = useLocalePath()
         class="recommended-post-card relative rounded-[1.25rem] bg-[var(--color-surface)] p-3"
       >
         <span v-if="post.category" class="recommended-post-category">
-          {{ post.category }}
+          <ContentCategoryPath :category="post.category" />
         </span>
         <NuxtLink
           class="block hover:opacity-100"

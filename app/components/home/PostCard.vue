@@ -4,7 +4,7 @@ defineProps<{
     path: string
     title?: string
     description?: string
-    category?: string
+    category?: string | string[]
     created?: Date | string
     cover?: string
     tags?: string[]
@@ -27,7 +27,7 @@ const localePath = useLocalePath()
       <div class="post-card-meta mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.95rem] font-bold text-[var(--color-text-muted)] xl:gap-x-4 xl:text-base">
         <span v-if="post.category" class="inline-flex items-center gap-1.5 whitespace-nowrap">
           <UIcon name="lucide:folder" class="size-4.5 shrink-0" />
-          <span class="post-card-category cursor-pointer">{{ post.category }}</span>
+          <ContentCategoryPath class="post-card-category cursor-pointer" :category="post.category" />
         </span>
         <span v-if="post.created" class="inline-flex items-center gap-1.5 whitespace-nowrap">
           <UIcon name="lucide:calendar-days" class="size-4.5 shrink-0" />

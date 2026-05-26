@@ -1,4 +1,7 @@
 export default {
+  common: {
+    confirm: 'OK',
+  },
   nav: {
     home: 'Home',
     posts: 'Posts',
@@ -39,6 +42,7 @@ export default {
     backToTop: 'Back to top',
     scrollHint: 'Scroll down',
     expandProfileHint: 'Click the button on the right to expand',
+    expandProfileNotice: 'Use the top-right button to expand the profile',
     pinnedPosts: 'Pinned Posts',
     allPosts: 'All Posts',
     postPagination: 'Post pagination',
@@ -60,6 +64,11 @@ export default {
   posts: {
     title: 'Posts',
     description: 'All published posts are collected here.',
+    menu: 'Posts menu',
+    archive: 'Archive',
+    archiveTitle: '{count} posts',
+    archiveDescription: 'Posts arranged by publication time, leaving old ideas a clear timeline.',
+    undated: 'Undated',
   },
   bookmarks: {
     title: 'Bookmarks',

@@ -59,6 +59,7 @@ const postCategories = computed(() => taxonomies.value?.categories ?? [])
 const postTags = computed(() => taxonomies.value?.tags ?? [])
 const publishedAt = computed(() => formatContentDate(page.value?.created, locale.value))
 const editedAt = computed(() => formatContentDate(page.value?.updated, locale.value))
+const categoryPath = computed(() => getCategoryPath(page.value?.category))
 
 useHead(() => ({
   title: page.value?.title ?? 'Leisuer',
@@ -158,8 +159,8 @@ onUnmounted(() => {
           <h2 class="mx-4 mt-4 mb-2 flex items-center gap-3 text-lg font-bold text-[var(--color-text-main)] before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
             {{ t('article.toc') }}
           </h2>
-          <div class="toc-card-scroll mx-4 mb-2">
-            <ol class="toc-list grid gap-2 pb-1">
+          <div class="toc-card-scroll mx-4 mb-4">
+            <ol class="toc-list grid gap-2 pb-2">
               <li
                 v-for="link in tocLinks"
                 :key="link.id"
@@ -183,8 +184,8 @@ onUnmounted(() => {
 
     <article class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
       <header class="mb-8">
-        <p v-if="page.category" class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
-          {{ page.category }}
+        <p v-if="categoryPath.length" class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
+          <ContentCategoryPath :category="page.category" />
         </p>
         <h1 class="mb-4 flex items-center gap-4 text-[clamp(1.75rem,3vw,2.8rem)] leading-tight font-bold text-[var(--color-text-main)] before:inline-block before:h-6 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
           {{ page.title }}

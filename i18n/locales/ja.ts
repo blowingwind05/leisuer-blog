@@ -1,4 +1,7 @@
 export default {
+  common: {
+    confirm: 'OK',
+  },
   nav: {
     home: 'ホーム',
     posts: '記事',
@@ -39,6 +42,7 @@ export default {
     backToTop: 'トップへ戻る',
     scrollHint: '下へスクロール',
     expandProfileHint: '右側のボタンで自己紹介を展開',
+    expandProfileNotice: '右上のボタンで自己紹介を展開してください',
     pinnedPosts: '固定記事',
     allPosts: 'すべての記事',
     postPagination: '記事ページ送り',
@@ -60,6 +64,11 @@ export default {
   posts: {
     title: '記事',
     description: '公開済みの記事をここにまとめています。',
+    menu: '記事メニュー',
+    archive: 'アーカイブ',
+    archiveTitle: '全 {count} 件',
+    archiveDescription: '公開日時で記事を整理し、過去の考えに見通しのよい時間軸を残します。',
+    undated: '日付なし',
   },
   bookmarks: {
     title: 'ブックマーク',

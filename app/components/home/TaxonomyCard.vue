@@ -1,8 +1,9 @@
 <script setup lang="ts">
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 defineProps<{
-  categories: Array<{ name: string, count: number }>
+  categories: Array<{ name: string, count: number, children?: Array<{ name: string, count: number }> }>
   tags: Array<{ name: string, count: number }>
   reveal?: boolean
 }>()
@@ -34,15 +35,23 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
       </button>
       <div v-show="categoriesOpen" class="pt-3">
         <div class="category-scroll-fade -mx-1 max-h-[8.7rem] overflow-y-auto px-1 pb-2">
-          <a v-for="category in categories" :key="category.name" href="#" class="flex items-center justify-between rounded-lg px-3 py-2 font-semibold text-[var(--color-text-main)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:text-[var(--color-accent)] hover:opacity-100">
-            {{ category.name }}
-            <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">{{ category.count }}</span>
-          </a>
+          <div v-for="category in categories" :key="category.name">
+            <a href="#" class="flex items-center justify-between rounded-lg px-3 py-2 font-semibold text-[var(--color-text-main)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:text-[var(--color-accent)] hover:opacity-100">
+              {{ category.name }}
+              <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">{{ category.count }}</span>
+            </a>
+            <div v-if="category.children?.length" class="mt-1 ml-3 grid gap-1 border-l border-[var(--color-border)] pl-3">
+              <a v-for="child in category.children" :key="`${category.name}-${child.name}`" href="#" class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] hover:text-[var(--color-text-main)] hover:opacity-100">
+                {{ child.name }}
+                <span class="text-[0.85em] text-[var(--color-text-muted)]">{{ child.count }}</span>
+              </a>
+            </div>
+          </div>
         </div>
-        <a href="#" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
+        <NuxtLink :to="localePath({ path: '/posts', query: { panel: 'categories' } })" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
           {{ t('home.showAll') }}
           <UIcon name="lucide:arrow-right" class="size-4" />
-        </a>
+        </NuxtLink>
       </div>
     </section>
 
@@ -57,10 +66,10 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
           <span class="text-[0.85em]">{{ tag.count }}</span>
         </span>
       </div>
-      <a href="#" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
+      <NuxtLink :to="localePath({ path: '/posts', query: { panel: 'tags' } })" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
         {{ t('home.showAll') }}
         <UIcon name="lucide:arrow-right" class="size-4" />
-      </a>
+      </NuxtLink>
     </section>
   </div>
 </template>

@@ -1,4 +1,7 @@
 export default {
+  common: {
+    confirm: '确定',
+  },
   nav: {
     home: '首页',
     posts: '文章',
@@ -39,6 +42,7 @@ export default {
     backToTop: '回到顶部',
     scrollHint: '向下滑',
     expandProfileHint: '点击右侧展开自我介绍',
+    expandProfileNotice: '请点击右上角按钮展开自我介绍',
     pinnedPosts: '置顶文章',
     allPosts: '全部文章',
     postPagination: '文章分页',
@@ -60,6 +64,11 @@ export default {
   posts: {
     title: '文章',
     description: '这里收纳所有已经发布的文章。',
+    menu: '文章菜单',
+    archive: '归档',
+    archiveTitle: '共 {count} 篇',
+    archiveDescription: '按发布时间整理文章，给旧想法留一条清楚的时间线。',
+    undated: '未注明日期',
   },
   bookmarks: {
     title: '收藏',

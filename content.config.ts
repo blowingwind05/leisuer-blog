@@ -8,7 +8,7 @@ export default defineContentConfig({
       schema: z.object({
         created: z.date().optional(),
         updated: z.date().optional(),
-        category: z.string().optional(),
+        category: z.union([z.string(), z.array(z.string())]).optional(),
         tags: z.array(z.string()).optional(),
         cover: z.string().optional(),
         pinned: z.boolean().optional(),

@@ -3,7 +3,7 @@ const props = withDefaults(defineProps<{
   page?: {
     title?: string
     description?: string
-    category?: string
+    category?: string | string[]
     created?: Date | string
     updated?: Date | string
     tags?: string[]
@@ -23,14 +23,33 @@ const props = withDefaults(defineProps<{
 
 const { locale, t } = useI18n()
 const isCollapsed = ref(props.defaultCollapsed)
+const showExpandNotice = ref(false)
 const publishedAt = computed(() => formatContentDate(props.page?.created, locale.value))
 const editedAt = computed(() => formatContentDate(props.page?.updated, locale.value))
+
+const toggleCollapsed = () => {
+  isCollapsed.value = !isCollapsed.value
+  showExpandNotice.value = false
+}
+
+const showCollapsedNotice = (event: MouseEvent) => {
+  if (!props.collapsible || !isCollapsed.value) return
+
+  const target = event.target
+
+  if (target instanceof Element && target.closest('button, a, [role="button"], input, textarea, select')) {
+    return
+  }
+
+  showExpandNotice.value = true
+}
 </script>
 
 <template>
   <article
     class="relative rounded-[1.25rem] bg-[var(--color-surface)] px-6 pt-8 pb-8 md:px-10 md:pt-10 md:pb-10"
     :class="{ 'reveal-card': reveal }"
+    @click="showCollapsedNotice"
   >
     <div v-if="collapsible" class="absolute top-4 right-4 flex items-center gap-2 md:top-6 md:right-6">
       <Transition name="about-expand-hint">
@@ -43,14 +62,28 @@ const editedAt = computed(() => formatContentDate(props.page?.updated, locale.va
         class="grid size-9 cursor-pointer place-items-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-[var(--color-accent)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_20%,transparent)] hover:opacity-100"
         type="button"
         :aria-label="isCollapsed ? '展开自我介绍' : '收起自我介绍'"
-        @click="isCollapsed = !isCollapsed"
+        @click="toggleCollapsed"
       >
-        <UIcon :name="isCollapsed ? 'lucide:expand' : 'lucide:minimize-2'" class="size-4" />
+        <UIcon :name="isCollapsed ? 'lucide:expand' : 'lucide:minimize-2'" class="size-4" :class="{ 'about-expand-icon-attention': isCollapsed }" />
       </button>
     </div>
 
+    <Transition name="about-expand-notice">
+      <div v-if="showExpandNotice" class="about-expand-notice-backdrop" role="presentation">
+        <div class="about-expand-notice" role="dialog" aria-modal="true" :aria-label="t('home.expandProfileNotice')">
+          <UIcon name="lucide:info" class="about-expand-notice-icon" />
+          <p>{{ t('home.expandProfileNotice') }}</p>
+          <button class="about-expand-notice-button" type="button" @click="showExpandNotice = false">
+            {{ t('common.confirm') }}
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <header class="transition-[margin] duration-300 ease-out" :class="isCollapsed ? 'mb-0' : 'mb-8'">
-      <p class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">{{ page?.category ?? 'About' }}</p>
+      <p class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
+        <ContentCategoryPath :category="page?.category" fallback="About" />
+      </p>
       <component
         :is="headingTag"
         class="mb-4 flex items-center gap-4 leading-none font-bold text-[var(--color-text-main)] before:inline-block before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']"
@@ -152,6 +185,111 @@ const editedAt = computed(() => formatContentDate(props.page?.updated, locale.va
 .about-expand-hint-leave-to {
   opacity: 0;
   transform: translateX(0.35rem);
+}
+
+.about-expand-icon-attention {
+  animation: about-expand-icon-attention 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes about-expand-icon-attention {
+  0%,
+  22%,
+  44%,
+  62% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  11%,
+  33% {
+    transform: scale(1.22) rotate(0deg);
+  }
+
+  52% {
+    transform: scale(1.06) rotate(0deg);
+  }
+
+  78% {
+    transform: scale(1.06) rotate(180deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+.about-expand-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--color-overlay) 72%, transparent);
+  padding: 1.25rem;
+}
+
+.about-expand-notice {
+  display: grid;
+  justify-items: center;
+  width: min(22rem, 100%);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-radius: 1.2rem;
+  background: var(--color-surface-elevated);
+  box-shadow: 0 1.2rem 3rem var(--color-shadow);
+  color: var(--color-text-main);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.about-expand-notice-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+  margin-bottom: 0.8rem;
+  color: var(--color-accent);
+}
+
+.about-expand-notice p {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.about-expand-notice-button {
+  margin-top: 1.2rem;
+  min-width: 6rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: var(--color-accent);
+  color: white;
+  cursor: pointer;
+  padding: 0.65rem 1.2rem;
+  font-weight: 800;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.about-expand-notice-button:hover {
+  opacity: 0.88;
+  transform: translateY(-0.04rem);
+}
+
+.about-expand-notice-enter-active,
+.about-expand-notice-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.about-expand-notice-enter-from,
+.about-expand-notice-leave-to {
+  opacity: 0;
+}
+
+.about-expand-notice-enter-from .about-expand-notice,
+.about-expand-notice-leave-to .about-expand-notice {
+  transform: translateY(0.35rem) scale(0.98);
 }
 
 .article-category {

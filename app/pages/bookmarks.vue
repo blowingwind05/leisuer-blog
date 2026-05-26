@@ -50,14 +50,11 @@ const bookmarks = [
     </aside>
 
     <section>
-      <header class="mb-6 rounded-[1.25rem] bg-[var(--color-surface)] p-5 md:p-7">
-        <p class="mb-3 inline-flex font-bold text-[var(--color-accent)]">{{ t('nav.bookmarks') }}</p>
+      <header class="bookmark-intro-card">
+        <p class="bookmark-intro-eyebrow">{{ t('nav.bookmarks') }}</p>
         <h1 class="bookmarks-title">
-          {{ t('bookmarks.title') }}
+          也许会有用的网站
         </h1>
-        <p class="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-text-muted)] md:text-lg">
-          {{ t('bookmarks.description') }}
-        </p>
       </header>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -84,24 +81,48 @@ const bookmarks = [
 </template>
 
 <style scoped>
+@import url("https://fontsapi.zeoseven.com/629/main/result.css");
+
+.bookmark-intro-card {
+  margin-bottom: 1.5rem;
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  padding: 1.25rem;
+}
+
+.bookmark-intro-eyebrow {
+  margin-bottom: 0.75rem;
+  display: inline-flex;
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
 .bookmarks-title {
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 1rem;
   color: var(--color-text-main);
-  font-size: clamp(1.9rem, 4vw, 3.4rem);
-  font-weight: 800;
-  line-height: 1.1;
+  font-family: "MaokenYingBiKaiShuJ", cursive;
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: normal;
+  line-height: 1.12;
 }
 
 .bookmarks-title::before {
   display: inline-block;
   width: 0.25rem;
-  height: 1.5rem;
+  height: 1.45rem;
   flex: none;
   border-radius: 999px;
   background: var(--color-accent);
   content: '';
+}
+
+@media (min-width: 768px) {
+  .bookmark-intro-card {
+    padding: 1.75rem;
+  }
 }
 
 .bookmark-card {

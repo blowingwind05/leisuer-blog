@@ -22,40 +22,32 @@ const friendTags = computed(() => taxonomies.value?.tags ?? [])
 
 const friends = [
   {
-    name: '星野回廊',
-    description: '写前端、摄影和日常碎碎念的个人小站。',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=hoshino',
+    name: 'Tsukumi233',
+    description: '好室友，项目经验丰富，二次元老资历',
+    url: 'https://blog.hotaron.top',
+    avatar: 'https://1.gravatar.com/avatar/cc6c79e72a9a75192b90ccf0b4d8179952626174f97901e1b99277b72fe050bb?size=512&d=initials',
+    theme: 'blue',
   },
   {
-    name: 'Blue Archive',
-    description: '记录工程实践、工具链和一些奇怪但有用的想法。',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=blue-archive',
+    name: 'cos',
+    description: '室友模板的作者，计算机领域大神',
+    url: 'https://blog.cosine.ren',
+    avatar: 'https://blog.cosine.ren/img/avatar.webp',
+    theme: 'cyan',
   },
   {
-    name: '橘子汽水实验室',
-    description: '关于设计、阅读、代码和生活方式的灵感笔记。',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=orange-soda',
+    name: 'Vertsineu',
+    description: '朋友，计算机领域大神，写了很多技术文章',
+    url: 'https://blog.vertsineu.top',
+    avatar: 'https://avatars.githubusercontent.com/u/97820175?v=4',
+    theme: 'green',
   },
   {
-    name: 'Northern Lights',
-    description: 'A tiny corner for systems, notes, and quiet experiments.',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=northern-lights',
-  },
-  {
-    name: '纸飞机航线',
-    description: '偶尔更新的技术博客，也放一些旅行和游戏记录。',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=paper-plane',
-  },
-  {
-    name: 'Mellow Code',
-    description: '慢慢写代码，慢慢把想法打磨成可以分享的东西。',
-    url: 'https://example.com',
-    avatar: 'https://api.dicebear.com/9.x/shapes/svg?seed=mellow-code',
+    name: 'Innei',
+    description: '高产高质量博主，很有设计感',
+    url: 'https://innei.in',
+    avatar: 'https://innei.in/_next/image?url=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F41265413%3Fv%3D4&w=256&q=75',
+    theme: 'pink',
   },
 ]
 </script>
@@ -68,14 +60,11 @@ const friends = [
     </aside>
 
     <section>
-      <header class="mb-6 rounded-[1.25rem] bg-[var(--color-surface)] p-5 md:p-7">
-        <p class="mb-3 inline-flex font-bold text-[var(--color-accent)]">{{ t('nav.friends') }}</p>
+      <header class="friend-intro-card">
+        <p class="friend-intro-eyebrow">{{ t('nav.friends') }}</p>
         <h1 class="friends-title">
-          {{ t('friends.title') }}
+          海内存知己 天涯若比邻
         </h1>
-        <p class="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-text-muted)] md:text-lg">
-          {{ t('friends.description') }}
-        </p>
       </header>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -83,6 +72,7 @@ const friends = [
           v-for="friend in friends"
           :key="friend.name"
           class="friend-card"
+          :class="`friend-card-${friend.theme}`"
           :href="friend.url"
           target="_blank"
           rel="noopener noreferrer"
@@ -94,7 +84,9 @@ const friends = [
                 <span class="truncate">{{ friend.name }}</span>
                 <UIcon name="lucide:arrow-up-right" class="friend-arrow" />
               </span>
-              <span class="friend-url">{{ friend.url.replace(/^https?:\/\//, '') }}</span>
+              <span class="friend-url">
+                <span class="friend-url-text">{{ friend.url.replace(/^https?:\/\//, '') }}</span>
+              </span>
             </span>
           </span>
           <span class="friend-description">{{ friend.description }}</span>
@@ -109,32 +101,57 @@ const friends = [
 </template>
 
 <style scoped>
+@import url("https://fontsapi.zeoseven.com/72/main/result.css");
+
+.friend-intro-card {
+  margin-bottom: 1.5rem;
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  padding: 1.25rem;
+}
+
+.friend-intro-eyebrow {
+  margin-bottom: 0.75rem;
+  display: inline-flex;
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
 .friends-title {
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 1rem;
   color: var(--color-text-main);
-  font-size: clamp(1.9rem, 4vw, 3.4rem);
-  font-weight: 800;
-  line-height: 1.1;
+  font-family: "Zhi Mang Xing", cursive;
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: normal;
+  line-height: 1.12;
 }
 
 .friends-title::before {
   display: inline-block;
   width: 0.25rem;
-  height: 1.5rem;
+  height: 1.45rem;
   flex: none;
   border-radius: 999px;
   background: var(--color-accent);
   content: '';
 }
 
+@media (min-width: 768px) {
+  .friend-intro-card {
+    padding: 1.75rem;
+  }
+}
+
 .friend-card {
+  --friend-accent: var(--color-accent);
   position: relative;
   display: flex;
   min-height: 11rem;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
   overflow: hidden;
   border-radius: 1.25rem;
@@ -147,9 +164,41 @@ const friends = [
 }
 
 .friend-card:hover {
-  box-shadow: 0 0.85rem 1.6rem color-mix(in srgb, var(--color-accent) 14%, transparent);
+  box-shadow: 0 0.85rem 1.6rem color-mix(in srgb, var(--friend-accent) 18%, transparent);
   opacity: 1;
   transform: translateY(-2px);
+}
+
+.friend-card-blue {
+  --friend-accent: #55aef5;
+}
+
+.friend-card-yellow {
+  --friend-accent: #f5c842;
+}
+
+.friend-card-red {
+  --friend-accent: #f76565;
+}
+
+.friend-card-pink {
+  --friend-accent: #f57ab0;
+}
+
+.friend-card-cyan {
+  --friend-accent: #28cbd9;
+}
+
+.friend-card-green {
+  --friend-accent: #25cfa3;
+}
+
+.friend-card-purple {
+  --friend-accent: #a17ef5;
+}
+
+.friend-card-orange {
+  --friend-accent: #ff8a1f;
 }
 
 .friend-main {
@@ -165,7 +214,7 @@ const friends = [
   height: 3.45rem;
   flex: none;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  background: color-mix(in srgb, var(--friend-accent) 12%, transparent);
   object-fit: cover;
 }
 
@@ -180,21 +229,40 @@ const friends = [
 
 .friend-url {
   display: block;
-  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 0.2rem;
-  color: var(--color-text-muted);
+}
+
+.friend-url-text {
+  display: inline-block;
+  overflow: hidden;
+  max-width: 100%;
+  padding-bottom: 0.08rem;
+  background-image: linear-gradient(var(--friend-accent), var(--friend-accent));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0 0.08em;
+  color: color-mix(in srgb, var(--friend-accent) 72%, #ffffff);
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.25;
   text-overflow: ellipsis;
+  transition:
+    background-size 0.2s ease,
+    color 0.2s ease;
   white-space: nowrap;
+}
+
+.friend-card:hover .friend-url-text {
+  background-size: 100% 0.08em;
 }
 
 .friend-arrow {
   width: 0.95em;
   height: 0.95em;
   flex: none;
-  color: var(--color-accent);
+  color: var(--friend-accent);
   opacity: 0;
   transform: translate(-0.2rem, 0.2rem);
   transition:
@@ -224,18 +292,18 @@ const friends = [
   bottom: 0;
   display: grid;
   width: 2.35rem;
-  grid-template-rows: 42% 1fr;
+  grid-template-rows: 35% 1fr;
   overflow: hidden;
   border-top-right-radius: 1.25rem;
   border-bottom-right-radius: 1.25rem;
-  background: var(--color-accent);
+  background: var(--friend-accent);
 }
 
 .friend-strip span:first-child {
-  background: color-mix(in srgb, var(--color-accent) 86%, #ffffff);
+  background: color-mix(in srgb, var(--friend-accent) 86%, #ffffff);
 }
 
 .friend-strip span:last-child {
-  background: color-mix(in srgb, var(--color-accent) 70%, #ffffff);
+  background: color-mix(in srgb, var(--friend-accent) 70%, #ffffff);
 }
 </style>

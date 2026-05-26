@@ -24,6 +24,9 @@ const { data: menuTaxonomies } = await useAsyncData('site-menu-taxonomies-' + lo
 })
 const menuCategories = computed(() => menuTaxonomies.value?.categories ?? [])
 const menuTags = computed(() => menuTaxonomies.value?.tags ?? [])
+const isPostsDesktopMenuOpen = ref(false)
+const isPostsDesktopMenuPinned = ref(false)
+const isPostsMobileMenuOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 const colorModeIcon = computed(() => isDark.value ? 'lucide:sun' : 'lucide:moon')
 const colorModeLabel = computed(() => isDark.value ? '切换到明亮模式' : '切换到黑暗模式')
@@ -41,7 +44,7 @@ const nonPostContentPaths = new Set(['/about', '/friends', '/bookmarks', '/xiaoh
 const isPostsActive = computed(() => {
   const path = normalizedRoutePath.value
 
-  return path === '/posts' || (path !== '/' && !nonPostContentPaths.has(path))
+  return path === '/posts' || path === '/archive' || (path !== '/' && !nonPostContentPaths.has(path))
 })
 
 const toggleColorMode = async () => {
@@ -78,6 +81,9 @@ const toggleColorMode = async () => {
 const closeMenus = () => {
   isLocaleMenuOpen.value = false
   isNavMenuOpen.value = false
+  isPostsDesktopMenuOpen.value = false
+  isPostsDesktopMenuPinned.value = false
+  isPostsMobileMenuOpen.value = false
 }
 
 defineExpose({ closeMenus })
@@ -98,10 +104,37 @@ defineExpose({ closeMenus })
             <UIcon name="lucide:house" class="nav-link-icon" />
             <span>{{ t('nav.home') }}</span>
           </NuxtLink>
-          <NuxtLink class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100" :class="{ 'nav-link-active': isPostsActive }" :to="localePath('/posts')">
-            <UIcon name="lucide:file-text" class="nav-link-icon" />
-            <span>{{ t('nav.posts') }}</span>
-          </NuxtLink>
+          <div
+            class="relative"
+            @mouseenter="isPostsDesktopMenuOpen = true"
+            @mouseleave="isPostsDesktopMenuOpen = isPostsDesktopMenuPinned"
+          >
+            <button
+              class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100"
+              :class="{ 'nav-link-active': isPostsActive }"
+              type="button"
+              :aria-label="t('posts.menu')"
+              :aria-expanded="isPostsDesktopMenuOpen"
+              @click="isPostsDesktopMenuPinned = !isPostsDesktopMenuPinned; isPostsDesktopMenuOpen = isPostsDesktopMenuPinned"
+            >
+              <UIcon name="lucide:file-text" class="nav-link-icon" />
+              <span>{{ t('nav.posts') }}</span>
+              <UIcon name="lucide:chevron-down" class="nav-link-chevron" :class="{ 'nav-link-chevron-open': isPostsDesktopMenuOpen }" />
+            </button>
+            <Transition name="posts-dropdown-pop">
+              <div v-if="isPostsDesktopMenuOpen" class="nav-posts-dropdown absolute top-[calc(100%+0.55rem)] left-0 grid min-w-44 gap-[0.15rem] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-[0.35rem] shadow-[0_1rem_2rem_var(--color-shadow)]">
+                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath('/archive')" @click="closeMenus">
+                  {{ t('posts.archive') }}
+                </NuxtLink>
+                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="closeMenus">
+                  {{ t('home.categories') }}
+                </NuxtLink>
+                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="closeMenus">
+                  {{ t('home.tags') }}
+                </NuxtLink>
+              </div>
+            </Transition>
+          </div>
           <NuxtLink class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100" :to="localePath('/about')">
             <UIcon name="lucide:user" class="nav-link-icon" />
             <span>{{ t('nav.about') }}</span>
@@ -198,51 +231,49 @@ defineExpose({ closeMenus })
                         </a>
                       </div>
                     </section>
-                    <section class="rounded-[1rem] border border-[var(--color-border)] px-4 py-4">
-                      <section>
-                        <h3 class="mb-2 flex items-baseline gap-2 text-base font-bold text-[var(--color-text-main)]">
-                          <span>{{ t('home.categories') }}</span>
-                          <span class="text-lg text-[var(--color-text-muted)]">{{ menuCategories.length }}</span>
-                        </h3>
-                        <div class="mobile-menu-category-list grid max-h-[7.6rem] gap-1 overflow-y-auto pb-2">
-                          <a v-for="category in menuCategories" :key="category.name" href="#" class="flex items-center justify-between rounded-lg px-2 py-1.5 font-semibold text-[var(--color-text-main)] hover:bg-[color-mix(in_srgb,var(--color-text-muted)_12%,transparent)] hover:opacity-100">
-                            {{ category.name }}
-                            <span class="text-[var(--color-accent)]">{{ category.count }}</span>
-                          </a>
-                        </div>
-                        <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
-                          {{ t('home.showAll') }}
-                          <UIcon name="lucide:arrow-right" class="size-4" />
-                        </a>
-                      </section>
-
-                      <section class="mt-3 border-t border-[var(--color-border)] pt-3">
-                        <h3 class="mb-2 flex items-baseline gap-2 text-base font-bold text-[var(--color-text-main)]">
-                          <span>{{ t('home.tags') }}</span>
-                          <span class="text-lg text-[var(--color-text-muted)]">{{ menuTags.length }}</span>
-                        </h3>
-                        <div class="mobile-menu-tag-list flex max-h-[6.4rem] flex-wrap gap-2 overflow-y-auto pb-2">
-                          <span v-for="tag in menuTags" :key="tag.name" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-2.5 py-1 text-sm font-semibold text-[var(--color-accent)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_16%,transparent)] hover:opacity-100">
-                            <span>{{ tag.name }}</span>
-                            <span class="text-[0.85em]">{{ tag.count }}</span>
-                          </span>
-                        </div>
-                        <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
-                          {{ t('home.showAll') }}
-                          <UIcon name="lucide:arrow-right" class="size-4" />
-                        </a>
-                      </section>
-                    </section>
-
+                    <div class="mobile-posts-stats" aria-label="文章分类与标签统计">
+                      <NuxtLink class="mobile-posts-stat" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="isNavMenuOpen = false">
+                        <span class="mobile-posts-stat-label">{{ t('home.categories') }}</span>
+                        <span class="mobile-posts-stat-count">{{ menuCategories.length }}</span>
+                      </NuxtLink>
+                      <NuxtLink class="mobile-posts-stat" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="isNavMenuOpen = false">
+                        <span class="mobile-posts-stat-label">{{ t('home.tags') }}</span>
+                        <span class="mobile-posts-stat-count">{{ menuTags.length }}</span>
+                      </NuxtLink>
+                    </div>
                     <div class="grid gap-2">
                       <NuxtLink class="mobile-menu-option inline-flex items-center gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]" :to="localePath('/')" @click="isNavMenuOpen = false">
                         <UIcon name="lucide:house" class="size-5 shrink-0" />
                         <span>{{ t('nav.home') }}</span>
                       </NuxtLink>
-                      <NuxtLink class="mobile-menu-option inline-flex items-center gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]" :class="{ 'mobile-menu-option-active': isPostsActive }" :to="localePath('/posts')" @click="isNavMenuOpen = false">
-                        <UIcon name="lucide:file-text" class="size-5 shrink-0" />
-                        <span>{{ t('nav.posts') }}</span>
-                      </NuxtLink>
+                      <div class="grid gap-1">
+                        <button
+                          class="mobile-menu-option inline-flex items-center justify-between gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]"
+                          :class="{ 'mobile-menu-option-active': isPostsActive }"
+                          type="button"
+                          :aria-expanded="isPostsMobileMenuOpen"
+                          @click="isPostsMobileMenuOpen = !isPostsMobileMenuOpen"
+                        >
+                          <span class="inline-flex items-center gap-[0.8rem]">
+                            <UIcon name="lucide:file-text" class="size-5 shrink-0" />
+                            <span>{{ t('nav.posts') }}</span>
+                          </span>
+                          <UIcon name="lucide:chevron-down" class="size-4 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isPostsMobileMenuOpen }" />
+                        </button>
+                        <Transition name="posts-mobile-pop">
+                          <div v-if="isPostsMobileMenuOpen" class="grid gap-1 pl-8">
+                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/archive' }" :to="localePath('/archive')" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
+                              <span>{{ t('posts.archive') }}</span>
+                            </NuxtLink>
+                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/posts' && route.query.panel === 'categories' }" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
+                              <span>{{ t('home.categories') }}</span>
+                            </NuxtLink>
+                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/posts' && route.query.panel === 'tags' }" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
+                              <span>{{ t('home.tags') }}</span>
+                            </NuxtLink>
+                          </div>
+                        </Transition>
+                      </div>
                       <NuxtLink class="mobile-menu-option inline-flex items-center gap-[0.8rem] py-[0.85rem] text-[1.35rem] font-bold whitespace-nowrap text-[var(--color-text-main)]" :to="localePath('/about')" @click="isNavMenuOpen = false">
                         <UIcon name="lucide:user" class="size-5 shrink-0" />
                         <span>{{ t('nav.about') }}</span>
@@ -336,10 +367,55 @@ defineExpose({ closeMenus })
   transform: rotate(180deg);
 }
 
+.nav-link-chevron {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-chevron-open {
+  transform: rotate(180deg);
+}
+
 .locale-option-active {
   color: var(--color-text-main);
   background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
   opacity: 1;
+}
+
+.nav-posts-option {
+  color: var(--color-text-muted);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.nav-posts-option:hover {
+  background-color: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-main);
+  opacity: 1;
+}
+
+.posts-dropdown-pop-enter-active,
+.posts-dropdown-pop-leave-active,
+.posts-mobile-pop-enter-active,
+.posts-mobile-pop-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.posts-dropdown-pop-enter-from,
+.posts-dropdown-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-0.25rem);
+}
+
+.posts-mobile-pop-enter-from,
+.posts-mobile-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-0.15rem);
 }
 
 .mobile-social-link {
@@ -368,13 +444,6 @@ defineExpose({ closeMenus })
   height: 1.15rem;
 }
 
-.mobile-menu-category-list,
-.mobile-menu-tag-list {
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
-  scrollbar-width: thin;
-}
-
 .mobile-menu-trigger-open {
   color: var(--color-text-main);
   transform: rotate(90deg);
@@ -397,6 +466,81 @@ defineExpose({ closeMenus })
 
 .mobile-menu-option:hover {
   background-color: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  opacity: 1;
+}
+
+.mobile-menu-option.router-link-exact-active:hover,
+.mobile-menu-option-active:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+}
+
+.mobile-posts-stats {
+  display: grid;
+  margin-block: -0.75rem -0.85rem;
+  padding-inline: 0.85rem;
+}
+
+.mobile-posts-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.35rem;
+  color: var(--color-text-main);
+  font-weight: 800;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.mobile-posts-stat:hover {
+  color: var(--color-text-main);
+  opacity: 0.82;
+}
+
+.mobile-posts-stat + .mobile-posts-stat {
+  border-top: 1px solid var(--color-border);
+}
+
+.mobile-posts-stat::before {
+  display: block;
+  width: 0.28rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  content: '';
+}
+
+.mobile-posts-stat-label {
+  font-size: clamp(1.45rem, 7vw, 2rem);
+  letter-spacing: 0;
+}
+
+.mobile-posts-stat-count {
+  color: var(--color-text-muted);
+  font-size: clamp(1.8rem, 8vw, 2.35rem);
+  line-height: 1;
+}
+
+.mobile-menu-suboption {
+  border-radius: 0.75rem;
+  padding-inline: 0.75rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.mobile-menu-suboption:hover {
+  background-color: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-main);
+  opacity: 1;
+}
+
+.mobile-menu-suboption-active,
+.mobile-menu-suboption-active:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
   opacity: 1;
 }
 
