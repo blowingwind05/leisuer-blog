@@ -13,10 +13,10 @@ withDefaults(defineProps<{
 
 <template>
   <div
-    class="rounded-[1.25rem] bg-[var(--color-surface)] p-4 text-center"
+    class="rounded-[1.25rem] p-4 text-center"
     :class="[
       reveal ? 'reveal-card' : '',
-      compact ? '' : 'border border-[var(--color-glass-border)] bg-[var(--color-glass-bg)] p-6 backdrop-blur-[22px] backdrop-saturate-125',
+      compact && !reveal ? 'bg-[var(--color-surface)]' : 'profile-card-glass p-6',
     ]"
   >
     <img
@@ -50,6 +50,13 @@ withDefaults(defineProps<{
 </template>
 
 <style scoped>
+.profile-card-glass {
+  border: 1px solid var(--color-glass-border);
+  background-color: var(--color-glass-bg);
+  backdrop-filter: blur(22px) saturate(1.25);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+}
+
 .profile-social-link {
   display: grid;
   width: 2.75rem;
