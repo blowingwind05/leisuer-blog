@@ -48,7 +48,7 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
             </div>
           </div>
         </div>
-        <NuxtLink :to="localePath({ path: '/posts', query: { panel: 'categories' } })" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
+        <NuxtLink :to="localePath('/categories')" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
           {{ t('home.showAll') }}
           <UIcon name="lucide:arrow-right" class="size-4" />
         </NuxtLink>
@@ -66,7 +66,7 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
           <span class="text-[0.85em]">{{ tag.count }}</span>
         </span>
       </div>
-      <NuxtLink :to="localePath({ path: '/posts', query: { panel: 'tags' } })" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
+      <NuxtLink :to="localePath('/tags')" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
         {{ t('home.showAll') }}
         <UIcon name="lucide:arrow-right" class="size-4" />
       </NuxtLink>

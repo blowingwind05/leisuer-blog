@@ -40,11 +40,12 @@ const normalizedRoutePath = computed(() => {
 
   return `/${segments.join('/')}`
 })
+const postSectionPaths = new Set(['/posts', '/archive', '/categories', '/tags'])
 const nonPostContentPaths = new Set(['/about', '/friends', '/bookmarks', '/xiaohongshu'])
 const isPostsActive = computed(() => {
   const path = normalizedRoutePath.value
 
-  return path === '/posts' || path === '/archive' || (path !== '/' && !nonPostContentPaths.has(path))
+  return postSectionPaths.has(path) || (path !== '/' && !nonPostContentPaths.has(path))
 })
 
 const toggleColorMode = async () => {
@@ -126,10 +127,10 @@ defineExpose({ closeMenus })
                 <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath('/archive')" @click="closeMenus">
                   {{ t('posts.archive') }}
                 </NuxtLink>
-                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="closeMenus">
+                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath('/categories')" @click="closeMenus">
                   {{ t('home.categories') }}
                 </NuxtLink>
-                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="closeMenus">
+                <NuxtLink class="nav-posts-option block rounded-lg px-[0.6rem] py-[0.45rem] whitespace-nowrap" :to="localePath('/tags')" @click="closeMenus">
                   {{ t('home.tags') }}
                 </NuxtLink>
               </div>
@@ -232,11 +233,11 @@ defineExpose({ closeMenus })
                       </div>
                     </section>
                     <div class="mobile-posts-stats" aria-label="文章分类与标签统计">
-                      <NuxtLink class="mobile-posts-stat" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="isNavMenuOpen = false">
+                      <NuxtLink class="mobile-posts-stat" :to="localePath('/categories')" @click="isNavMenuOpen = false">
                         <span class="mobile-posts-stat-label">{{ t('home.categories') }}</span>
                         <span class="mobile-posts-stat-count">{{ menuCategories.length }}</span>
                       </NuxtLink>
-                      <NuxtLink class="mobile-posts-stat" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="isNavMenuOpen = false">
+                      <NuxtLink class="mobile-posts-stat" :to="localePath('/tags')" @click="isNavMenuOpen = false">
                         <span class="mobile-posts-stat-label">{{ t('home.tags') }}</span>
                         <span class="mobile-posts-stat-count">{{ menuTags.length }}</span>
                       </NuxtLink>
@@ -265,10 +266,10 @@ defineExpose({ closeMenus })
                             <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/archive' }" :to="localePath('/archive')" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
                               <span>{{ t('posts.archive') }}</span>
                             </NuxtLink>
-                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/posts' && route.query.panel === 'categories' }" :to="localePath({ path: '/posts', query: { panel: 'categories' } })" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
+                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/categories' }" :to="localePath('/categories')" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
                               <span>{{ t('home.categories') }}</span>
                             </NuxtLink>
-                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/posts' && route.query.panel === 'tags' }" :to="localePath({ path: '/posts', query: { panel: 'tags' } })" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
+                            <NuxtLink class="mobile-menu-suboption inline-flex items-center gap-[0.65rem] py-[0.65rem] text-[1.05rem] font-semibold whitespace-nowrap text-[var(--color-text-muted)]" :class="{ 'mobile-menu-suboption-active': normalizedRoutePath === '/tags' }" :to="localePath('/tags')" @click="isNavMenuOpen = false; isPostsMobileMenuOpen = false">
                               <span>{{ t('home.tags') }}</span>
                             </NuxtLink>
                           </div>
