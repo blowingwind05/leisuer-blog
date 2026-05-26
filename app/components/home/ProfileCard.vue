@@ -16,7 +16,7 @@ withDefaults(defineProps<{
     class="rounded-[1.25rem] p-4 text-center"
     :class="[
       reveal ? 'reveal-card' : '',
-      compact && !reveal ? 'bg-[var(--color-surface)]' : 'profile-card-glass p-6',
+      compact ? 'bg-[var(--color-surface)]' : 'profile-card-glass p-6',
     ]"
   >
     <img
