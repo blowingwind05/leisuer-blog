@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
+const categoryPath = (...segments: string[]) => localePath(`/categories/${segments.map(segment => encodeURIComponent(segment)).join('/')}`)
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
 defineProps<{
   categories: Array<{ name: string, count: number, children?: Array<{ name: string, count: number }> }>
@@ -36,15 +38,15 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
       <div v-show="categoriesOpen" class="pt-3">
         <div class="category-scroll-fade -mx-1 max-h-[8.7rem] overflow-y-auto px-1 pb-2">
           <div v-for="category in categories" :key="category.name">
-            <a href="#" class="flex items-center justify-between rounded-lg px-3 py-2 font-semibold text-[var(--color-text-main)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:text-[var(--color-accent)] hover:opacity-100">
+            <NuxtLink :to="categoryPath(category.name)" class="flex items-center justify-between rounded-lg px-3 py-2 font-semibold text-[var(--color-text-main)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:text-[var(--color-accent)] hover:opacity-100">
               {{ category.name }}
               <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">{{ category.count }}</span>
-            </a>
+            </NuxtLink>
             <div v-if="category.children?.length" class="mt-1 ml-3 grid gap-1 border-l border-[var(--color-border)] pl-3">
-              <a v-for="child in category.children" :key="`${category.name}-${child.name}`" href="#" class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] hover:text-[var(--color-text-main)] hover:opacity-100">
+              <NuxtLink v-for="child in category.children" :key="`${category.name}-${child.name}`" :to="categoryPath(category.name, child.name)" class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] hover:text-[var(--color-text-main)] hover:opacity-100">
                 {{ child.name }}
                 <span class="text-[0.85em] text-[var(--color-text-muted)]">{{ child.count }}</span>
-              </a>
+              </NuxtLink>
             </div>
           </div>
         </div>
@@ -61,10 +63,10 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
         <span class="text-[1.6rem] text-[var(--color-text-muted)]">{{ tags.length }}</span>
       </h3>
       <div class="tag-scroll-fade -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 whitespace-nowrap">
-        <span v-for="tag in tags" :key="tag.name" class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-1.5 font-semibold text-[var(--color-accent)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_16%,transparent)] hover:opacity-100">
+        <NuxtLink v-for="tag in tags" :key="tag.name" :to="tagPath(tag.name)" class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] px-3 py-1.5 font-semibold text-[var(--color-accent)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_16%,transparent)] hover:opacity-100">
           <span>{{ tag.name }}</span>
           <span class="text-[0.85em]">{{ tag.count }}</span>
-        </span>
+        </NuxtLink>
       </div>
       <NuxtLink :to="localePath('/tags')" class="mt-1 inline-flex items-center gap-1 text-sm font-bold text-[var(--color-accent)] hover:opacity-80">
         {{ t('home.showAll') }}

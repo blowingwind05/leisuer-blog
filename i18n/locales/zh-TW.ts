@@ -16,6 +16,14 @@ export default {
   },
   search: {
     placeholder: '搜尋',
+    title: '搜尋',
+    close: '關閉搜尋',
+    empty: '輸入關鍵字開始搜尋',
+    noResults: '沒有找到相關內容',
+    resultCount: '找到 {count} 筆結果',
+    moreInPage: '該頁面還有 {count} 個搜尋結果',
+    collapsePageResults: '收起該頁面的搜尋結果',
+    shortcutHint: '⌘K',
   },
   article: {
     summary: '摘要',

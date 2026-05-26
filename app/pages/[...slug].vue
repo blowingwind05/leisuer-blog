@@ -184,8 +184,8 @@ onUnmounted(() => {
 
     <article class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
       <header class="mb-8">
-        <p v-if="categoryPath.length" class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
-          <ContentCategoryPath :category="page.category" />
+        <p v-if="categoryPath.length" class="article-category mb-3 inline-flex font-bold text-[var(--color-accent)]">
+          <ContentCategoryPath :category="page.category" segment-hover />
         </p>
         <h1 class="mb-4 flex items-center gap-4 text-[clamp(1.75rem,3vw,2.8rem)] leading-tight font-bold text-[var(--color-text-main)] before:inline-block before:h-6 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
           {{ page.title }}
@@ -382,19 +382,7 @@ onUnmounted(() => {
 }
 
 .article-category {
-  border-radius: 999px;
-  padding: 0.2rem 0.58rem;
-  margin-inline-start: -0.58rem;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.article-category:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
-  color: var(--color-accent);
-  opacity: 1;
+  margin-inline-start: -0.38rem;
 }
 
 .article-tag {

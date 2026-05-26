@@ -16,6 +16,14 @@ export default {
   },
   search: {
     placeholder: '搜索',
+    title: '搜索',
+    close: '关闭搜索',
+    empty: '输入关键词开始搜索',
+    noResults: '没有找到相关内容',
+    resultCount: '找到 {count} 条结果',
+    moreInPage: '该页面还有 {count} 个搜索结果',
+    collapsePageResults: '收起该页面的搜索结果',
+    shortcutHint: '⌘K',
   },
   article: {
     summary: '摘要',

@@ -16,6 +16,14 @@ export default {
   },
   search: {
     placeholder: '検索',
+    title: '検索',
+    close: '検索を閉じる',
+    empty: 'キーワードを入力して検索',
+    noResults: '該当する結果はありません',
+    resultCount: '{count} 件の結果',
+    moreInPage: 'このページにさらに {count} 件の検索結果',
+    collapsePageResults: 'このページの検索結果を折りたたむ',
+    shortcutHint: '⌘K',
   },
   article: {
     summary: '概要',

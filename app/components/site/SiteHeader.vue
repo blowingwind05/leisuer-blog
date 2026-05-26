@@ -6,6 +6,7 @@ const switchLocalePath = useSwitchLocalePath()
 const colorMode = useColorMode()
 const isLocaleMenuOpen = ref(false)
 const isNavMenuOpen = ref(false)
+const isSearchOpen = ref(false)
 
 const availableLocales = computed<Array<{ code: string, name: string }>>(() =>
   locales.value.map(item => typeof item === 'string'
@@ -87,20 +88,29 @@ const closeMenus = () => {
   isPostsMobileMenuOpen.value = false
 }
 
+const openSearch = () => {
+  closeMenus()
+  isSearchOpen.value = true
+}
+
+const closeSearch = () => {
+  isSearchOpen.value = false
+}
+
 defineExpose({ closeMenus })
 </script>
 
 <template>
   <header class="fixed inset-x-0 top-0 z-[2] flex h-16 items-center bg-[var(--color-nav-bg)] transition-colors duration-300">
     <div class="mx-auto grid h-full w-[min(calc(100%-var(--site-gutter)*2),var(--site-content-width))] grid-cols-[auto_minmax(0,1fr)] items-stretch gap-x-3 sm:gap-x-6 md:gap-x-3">
-      <div class="logo flex h-full self-stretch">
+      <div class="logo nav-search-left flex h-full self-stretch" :class="{ 'nav-search-left-hidden': isSearchOpen }">
         <NuxtLink class="inline-flex h-full self-stretch items-center gap-[0.55rem] text-xl leading-none font-extrabold tracking-[-0.05em] text-[var(--color-text-main)]" :to="localePath({ path: '/', hash: '#about' })">
           <img class="block size-8 shrink-0 rounded-lg object-cover" src="/img/avatar.jpg" alt="" />
           <span class="max-sm:hidden">Leisuer.</span>
         </NuxtLink>
       </div>
-      <nav class="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-6 max-lg:grid-cols-[auto]" :aria-label="t('nav.home')">
-        <div class="nav-primary flex min-w-0 items-center justify-center gap-6 max-lg:hidden">
+      <nav class="relative grid h-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-6 max-lg:grid-cols-[auto]" :aria-label="t('nav.home')">
+        <div class="nav-primary nav-search-left flex min-w-0 items-center justify-center gap-6 max-lg:hidden" :class="{ 'nav-search-left-hidden': isSearchOpen }">
           <NuxtLink class="nav-link inline-flex items-center gap-[0.35rem] text-[1.1rem] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100" :to="localePath('/')">
             <UIcon name="lucide:house" class="nav-link-icon" />
             <span>{{ t('nav.home') }}</span>
@@ -149,13 +159,11 @@ defineExpose({ closeMenus })
             <span>{{ t('nav.bookmarks') }}</span>
           </NuxtLink>
         </div>
-        <div class="flex items-center justify-end gap-0.5 sm:gap-6 md:gap-[0.65rem]">
-          <label class="nav-search inline-flex w-[7.25rem] items-center gap-[0.45rem] rounded-[0.65rem] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-[0.65rem] py-[0.3rem] text-[var(--color-text-muted)] transition-[width,border-color,box-shadow,background-color] duration-200 ease-out focus-within:w-36 focus-within:border-[#53a3f1] focus-within:shadow-[0_0_0_3px_rgb(83_163_241/0.12)] sm:w-36 sm:focus-within:w-44 md:w-48 md:focus-within:w-60">
-            <UIcon name="lucide:search" class="size-4 shrink-0" />
-            <input class="min-w-0 w-full border-0 bg-transparent text-[0.95rem] text-[var(--color-text-main)] outline-0 placeholder:text-[var(--color-text-muted)] placeholder:opacity-70" type="search" :placeholder="t('search.placeholder')" />
-          </label>
+        <div class="nav-tools flex items-center justify-end gap-0.5 sm:gap-6 md:gap-[0.65rem]">
+          <SearchSiteSearch :active="isSearchOpen" @activate="openSearch" @close="closeSearch" />
           <button
-            class="grid size-9 cursor-pointer place-items-center border-0 bg-transparent text-[var(--color-text-muted)] transition-[color,transform] duration-200 hover:text-[var(--color-text-main)] hover:opacity-100"
+            class="nav-search-right grid size-9 cursor-pointer place-items-center border-0 bg-transparent text-[var(--color-text-muted)] transition-[color,transform] duration-200 hover:text-[var(--color-text-main)] hover:opacity-100"
+            :class="{ 'nav-search-right-hidden': isSearchOpen }"
             type="button"
             :aria-label="colorModeLabel"
             :title="colorModeLabel"
@@ -163,13 +171,13 @@ defineExpose({ closeMenus })
           >
             <UIcon :name="colorModeIcon" class="size-[1.1rem]" />
           </button>
-          <div class="relative">
+          <div class="nav-search-right relative" :class="{ 'nav-search-right-hidden': isSearchOpen }">
             <button
               class="locale-trigger inline-flex cursor-pointer items-center gap-[0.35rem] rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-[0.55rem] py-1 font-[inherit] text-[1.1rem] leading-[1.4] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:opacity-100 max-md:border-transparent max-md:bg-transparent max-md:p-0 max-md:shadow-none"
               type="button"
               :aria-label="t('language.label')"
               :aria-expanded="isLocaleMenuOpen"
-              @click="isLocaleMenuOpen = !isLocaleMenuOpen; isNavMenuOpen = false"
+              @click="isLocaleMenuOpen = !isLocaleMenuOpen; isNavMenuOpen = false; isSearchOpen = false"
             >
               <UIcon name="lucide:languages" class="nav-link-icon" />
               <span class="locale-name max-md:hidden">{{ currentLocaleName }}</span>
@@ -192,14 +200,14 @@ defineExpose({ closeMenus })
               </NuxtLink>
             </div>
           </div>
-          <div class="relative hidden max-lg:block">
+          <div class="nav-search-right relative hidden max-lg:block" :class="{ 'nav-search-right-hidden': isSearchOpen }">
             <button
               class="mobile-menu-trigger grid size-[2.35rem] cursor-pointer place-items-center border-0 bg-transparent text-[var(--color-text-muted)] transition-[color,transform] duration-200 hover:text-[var(--color-text-main)]"
               :class="{ 'mobile-menu-trigger-open': isNavMenuOpen }"
               type="button"
               :aria-label="t('nav.menu')"
               :aria-expanded="isNavMenuOpen"
-              @click="isNavMenuOpen = !isNavMenuOpen; isLocaleMenuOpen = false"
+              @click="isNavMenuOpen = !isNavMenuOpen; isLocaleMenuOpen = false; isSearchOpen = false"
             >
               <UIcon :name="isNavMenuOpen ? 'lucide:x' : 'lucide:menu'" class="size-[1.2rem]" />
             </button>
@@ -300,6 +308,33 @@ defineExpose({ closeMenus })
 </template>
 
 <style scoped>
+.nav-search-left,
+.nav-search-right {
+  transition:
+    opacity 0.46s ease,
+    transform 0.54s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.46s ease;
+}
+
+.nav-search-left-hidden,
+.nav-search-right-hidden {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.nav-search-left-hidden {
+  transform: translateX(-8rem);
+}
+
+.nav-search-right-hidden {
+  transform: translateX(8rem);
+}
+
+.nav-tools {
+  position: relative;
+}
+
 .nav-link-icon {
   width: 1.05rem;
   height: 1.05rem;

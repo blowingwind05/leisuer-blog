@@ -16,6 +16,14 @@ export default {
   },
   search: {
     placeholder: 'Search',
+    title: 'Search',
+    close: 'Close search',
+    empty: 'Type to search the site',
+    noResults: 'No results found',
+    resultCount: '{count} results',
+    moreInPage: '{count} more result in this page',
+    collapsePageResults: 'Collapse page results',
+    shortcutHint: '⌘K',
   },
   article: {
     summary: 'Summary',

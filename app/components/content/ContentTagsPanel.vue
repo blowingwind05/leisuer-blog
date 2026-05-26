@@ -2,15 +2,18 @@
 defineProps<{
   tags: Array<{ name: string, count: number }>
 }>()
+
+const localePath = useLocalePath()
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 </script>
 
 <template>
   <section class="taxonomy-panel">
     <div class="tag-cloud">
-      <span v-for="tag in tags" :key="tag.name" class="tag-item">
+      <NuxtLink v-for="tag in tags" :key="tag.name" class="tag-item" :to="tagPath(tag.name)">
         <span>{{ tag.name }}</span>
         <span>{{ tag.count }}</span>
-      </span>
+      </NuxtLink>
     </div>
   </section>
 </template>

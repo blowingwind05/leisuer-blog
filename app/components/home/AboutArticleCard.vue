@@ -82,7 +82,7 @@ const showCollapsedNotice = (event: MouseEvent) => {
 
     <header class="transition-[margin] duration-300 ease-out" :class="isCollapsed ? 'mb-0' : 'mb-8'">
       <p class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
-        <ContentCategoryPath :category="page?.category" fallback="About" />
+        <ContentCategoryPath :category="page?.category" fallback="About" :linked="false" />
       </p>
       <component
         :is="headingTag"

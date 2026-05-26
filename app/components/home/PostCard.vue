@@ -20,14 +20,14 @@ const localePath = useLocalePath()
 
 <template>
   <article
-    class="grid grid-cols-1 gap-6 overflow-hidden rounded-[1.25rem] bg-[var(--color-surface)] p-4 md:h-60 md:grid-cols-[minmax(0,1fr)_4rem] md:has-[.post-card-cover]:grid-cols-[minmax(0,1fr)_18rem]"
+    class="grid grid-cols-1 gap-6 rounded-[1.25rem] bg-[var(--color-surface)] p-4 md:h-60 md:grid-cols-[minmax(0,1fr)_4rem] md:has-[.post-card-cover]:grid-cols-[minmax(0,1fr)_18rem]"
     :class="{ 'reveal-card': reveal }"
   >
-    <div class="flex min-h-0 min-w-0 flex-col overflow-hidden">
+    <div class="flex min-h-0 min-w-0 flex-col">
       <div class="post-card-meta mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.95rem] font-bold text-[var(--color-text-muted)] xl:gap-x-4 xl:text-base">
-        <span v-if="post.category" class="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span v-if="post.category" class="post-card-category">
           <UIcon name="lucide:folder" class="size-4.5 shrink-0" />
-          <ContentCategoryPath class="post-card-category cursor-pointer" :category="post.category" />
+          <ContentCategoryPath :category="post.category" mode="leaf" />
         </span>
         <span v-if="post.created" class="inline-flex items-center gap-1.5 whitespace-nowrap">
           <UIcon name="lucide:calendar-days" class="size-4.5 shrink-0" />
@@ -99,10 +99,8 @@ const localePath = useLocalePath()
 @media (min-width: 768px) {
   .post-card-meta {
     flex-wrap: nowrap;
-    overflow: hidden;
+    overflow: visible;
     white-space: nowrap;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
   }
 }
 
@@ -141,16 +139,34 @@ const localePath = useLocalePath()
 
 .post-card-category {
   display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 0.375rem;
   border-radius: 999px;
   padding: 0.18rem 0.48rem;
   margin-inline-start: -0.48rem;
+  cursor: pointer;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 }
 
 .post-card-category:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  background-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
   color: var(--color-accent);
+}
+
+.post-card-category :deep(.content-category-segment) {
+  color: inherit;
+  padding: 0;
+  background: transparent;
+  opacity: 1;
+  transition: none;
+}
+
+.post-card-category :deep(.content-category-segment:hover) {
+  color: inherit;
+  background: transparent;
+  opacity: 1;
 }
 </style>
