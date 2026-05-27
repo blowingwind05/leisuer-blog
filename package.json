@@ -7,6 +7,7 @@
     "dev": "nuxt dev",
     "bookmarks:favicons": "node scripts/download-bookmark-favicons.mjs",
     "bookmarks:favicons:force": "node scripts/download-bookmark-favicons.mjs --force",
+    "images:webp": "node scripts/convert-images-to-webp.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview"
   },
@@ -17,6 +18,7 @@
     "animejs": "^4.4.1",
     "better-sqlite3": "^12.9.0",
     "nuxt": "^4.4.4",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
   }

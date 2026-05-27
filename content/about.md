@@ -2,14 +2,18 @@
 title: 关于 Leisuer
 description: Leisuer是谁？他从哪里来？他在做什么？他要做什么？
 created: 2026-05-14
-updated: 2026-05-26
-category: Profile
+updated: 2026-05-27
+category: About
 tags:
   - Computer Science
   - Blog
   - Life
 draft: false
 ---
+
+::tip
+这里是介绍我自己的页面，网站介绍请看[关于本站](/posts/about-site)。
+::
 
 我是Leisuer，在中国科学技术大学计算机科学与技术专业读大三，信仰共产主义。
 

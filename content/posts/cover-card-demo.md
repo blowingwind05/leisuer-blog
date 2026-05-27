@@ -9,7 +9,6 @@ tags:
   - Image
   - Visual
 cover: /img/cover/9.webp
-pinned: true
 draft: false
 ---
 

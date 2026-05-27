@@ -272,7 +272,7 @@ onUnmounted(() => {
             </span>
             <span class="inline-flex items-center gap-1.5">
               <UIcon name="lucide:eye" class="size-4.5" />
-              {{ t('article.viewCount', { count: 414 }) }}
+              {{ t('article.viewCount', { count: 233 }) }}
             </span>
           </div>
           <div v-if="page.tags?.length" class="article-meta-tags flex flex-wrap items-center gap-x-2 gap-y-1">

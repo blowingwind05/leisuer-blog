@@ -10,7 +10,6 @@ tags:
   - Card
   - Responsive
 cover: /img/cover/5.webp
-pinned: true
 draft: false
 ---
 
