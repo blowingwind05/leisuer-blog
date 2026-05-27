@@ -81,5 +81,7 @@ export default {
   bookmarks: {
     title: 'Bookmarks',
     description: 'A few useful links for now, ready to become a proper bookmarks page later.',
+    expandCategories: 'Expand',
+    collapseCategories: 'Collapse',
   },
 }

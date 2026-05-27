@@ -27,6 +27,17 @@ const flattenTocLinks = (links: TocLink[] = []): TocLink[] => {
   ])
 }
 
+const expandCurrentTocBranch = (links: TocLink[] = [], activeId = ''): TocLink[] => {
+  const activeTopLevelLink = links.find((link) => {
+    return link.id === activeId || flattenTocLinks(link.children ?? []).some(child => child.id === activeId)
+  })
+
+  return links.flatMap(link => [
+    link,
+    ...(link.id === activeTopLevelLink?.id ? flattenTocLinks(link.children ?? []) : []),
+  ])
+}
+
 const availableLocales = computed<Array<{ code: string }>>(() =>
   locales.value.map(item => typeof item === 'string'
     ? { code: item }
@@ -78,9 +89,14 @@ const { data: mobileMenuPage } = await useAsyncData('site-mobile-menu-page', asy
 
 const menuCategories = computed(() => menuTaxonomies.value?.categories ?? [])
 const menuTags = computed(() => menuTaxonomies.value?.tags ?? [])
+const mobileMenuTocTreeLinks = computed(() => {
+  return (mobileMenuPage.value?.body?.toc?.links ?? []).filter(link => link.depth > 1)
+})
 const mobileMenuTocLinks = computed(() => {
-  return flattenTocLinks(mobileMenuPage.value?.body?.toc?.links ?? [])
-    .filter(link => link.depth > 1)
+  return flattenTocLinks(mobileMenuTocTreeLinks.value)
+})
+const visibleMobileMenuTocLinks = computed(() => {
+  return expandCurrentTocBranch(mobileMenuTocTreeLinks.value, activeMobileHeadingId.value)
 })
 const hasMobileMenuToc = computed(() => {
   return normalizedRoutePath.value !== '/' && mobileMenuTocLinks.value.length > 0
@@ -106,7 +122,7 @@ const updateActiveMobileHeading = () => {
 
   const activeHeading = headings
     .filter(heading => heading.getBoundingClientRect().top <= 112)
-    .at(-1) ?? headings[0]
+    .at(-1)
 
   activeMobileHeadingId.value = activeHeading?.id ?? ''
 }
@@ -301,7 +317,7 @@ onUnmounted(() => {
                 </h2>
                 <ol class="grid gap-2">
                   <li
-                    v-for="link in mobileMenuTocLinks"
+                    v-for="link in visibleMobileMenuTocLinks"
                     :key="link.id"
                     :style="{ paddingLeft: `${Math.max(0, link.depth - 2) * 0.95}rem` }"
                   >

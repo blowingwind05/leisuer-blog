@@ -22,10 +22,12 @@ const props = withDefaults(defineProps<{
 })
 
 const { locale, t } = useI18n()
+const localePath = useLocalePath()
 const isCollapsed = ref(props.defaultCollapsed)
 const showExpandNotice = ref(false)
 const publishedAt = computed(() => formatContentDate(props.page?.created, locale.value))
 const editedAt = computed(() => formatContentDate(props.page?.updated, locale.value))
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
 const toggleCollapsed = () => {
   isCollapsed.value = !isCollapsed.value
@@ -82,7 +84,7 @@ const showCollapsedNotice = (event: MouseEvent) => {
 
     <header class="transition-[margin] duration-300 ease-out" :class="isCollapsed ? 'mb-0' : 'mb-8'">
       <p class="article-category mb-3 inline-flex cursor-pointer font-bold text-[var(--color-accent)]">
-        <ContentCategoryPath :category="page?.category" fallback="About" :linked="false" />
+        <ContentCategoryPath :category="page?.category" fallback="About" />
       </p>
       <component
         :is="headingTag"
@@ -123,7 +125,7 @@ const showCollapsedNotice = (event: MouseEvent) => {
         <div v-if="page?.tags?.length" class="article-meta-tags flex flex-wrap items-center gap-x-2 gap-y-1">
           <template v-for="(tag, index) in page.tags" :key="tag">
             <span v-if="index > 0" class="text-[var(--color-text-muted)]">/</span>
-            <span class="article-tag cursor-pointer">{{ tag }}</span>
+            <NuxtLink class="article-tag cursor-pointer" :to="tagPath(tag)">{{ tag }}</NuxtLink>
           </template>
         </div>
       </div>
@@ -294,8 +296,8 @@ const showCollapsedNotice = (event: MouseEvent) => {
 
 .article-category {
   border-radius: 999px;
-  padding: 0.2rem 0.58rem;
-  margin-inline-start: -0.58rem;
+  padding: 0.3rem 0.82rem;
+  margin-inline-start: -0.82rem;
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -308,10 +310,16 @@ const showCollapsedNotice = (event: MouseEvent) => {
   opacity: 1;
 }
 
+.article-category :deep(.content-category-segment) {
+  padding: 0;
+}
+
 .article-tag {
   position: relative;
   max-width: 100%;
+  color: inherit;
   overflow-wrap: anywhere;
+  text-decoration: none;
   transition:
     color 0.2s ease,
     opacity 0.2s ease;

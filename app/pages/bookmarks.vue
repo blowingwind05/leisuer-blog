@@ -2,6 +2,9 @@
 import bookmarks from '~/data/bookmarks.json'
 
 const { locale, t } = useI18n()
+const bookmarkCategoryNav = ref<HTMLElement | null>(null)
+const areBookmarkCategoriesExpanded = ref(false)
+const areBookmarkCategoriesOverflowing = ref(false)
 
 useHead(() => ({
   title: t('nav.bookmarks'),
@@ -58,6 +61,25 @@ const visibleBookmarks = computed(() => {
 
   return bookmarks.filter(bookmark => bookmark.category === activeBookmarkCategory.value)
 })
+
+const updateBookmarkCategoryOverflow = () => {
+  if (!bookmarkCategoryNav.value) return
+
+  areBookmarkCategoriesOverflowing.value = bookmarkCategoryNav.value.scrollWidth > bookmarkCategoryNav.value.clientWidth + 1
+}
+
+watch(bookmarkCategoryTabs, () => {
+  nextTick(updateBookmarkCategoryOverflow)
+}, { immediate: true })
+
+onMounted(() => {
+  updateBookmarkCategoryOverflow()
+  window.addEventListener('resize', updateBookmarkCategoryOverflow)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateBookmarkCategoryOverflow)
+})
 </script>
 
 <template>
@@ -75,19 +97,40 @@ const visibleBookmarks = computed(() => {
         </h1>
       </header>
 
-      <nav class="bookmark-category-nav" aria-label="收藏分类">
-        <button
-          v-for="category in bookmarkCategoryTabs"
-          :key="category"
-          class="bookmark-category-tab"
-          :class="{ 'bookmark-category-tab-active': activeBookmarkCategory === category }"
-          type="button"
-          :aria-pressed="activeBookmarkCategory === category"
-          @click="activeBookmarkCategory = category"
+      <div
+        class="bookmark-category-shell"
+        :class="{ 'bookmark-category-shell-expanded': areBookmarkCategoriesExpanded }"
+      >
+        <nav
+          ref="bookmarkCategoryNav"
+          class="bookmark-category-nav"
+          :class="{ 'bookmark-category-nav-expanded': areBookmarkCategoriesExpanded }"
+          aria-label="收藏分类"
         >
-          <span>{{ category }}</span>
+          <button
+            v-for="category in bookmarkCategoryTabs"
+            :key="category"
+            class="bookmark-category-tab"
+            :class="{ 'bookmark-category-tab-active': activeBookmarkCategory === category }"
+            type="button"
+            :aria-pressed="activeBookmarkCategory === category"
+            @click="activeBookmarkCategory = category"
+          >
+            <span>{{ category }}</span>
+          </button>
+        </nav>
+        <button
+          v-if="areBookmarkCategoriesOverflowing || areBookmarkCategoriesExpanded"
+          class="bookmark-category-expand"
+          type="button"
+          :aria-label="areBookmarkCategoriesExpanded ? t('bookmarks.collapseCategories') : t('bookmarks.expandCategories')"
+          :aria-expanded="areBookmarkCategoriesExpanded"
+          @click="areBookmarkCategoriesExpanded = !areBookmarkCategoriesExpanded"
+        >
+          <UIcon :name="areBookmarkCategoriesExpanded ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="bookmark-category-expand-icon" />
+          <span class="bookmark-category-expand-text">{{ areBookmarkCategoriesExpanded ? t('bookmarks.collapseCategories') : t('bookmarks.expandCategories') }}</span>
         </button>
-      </nav>
+      </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <a
@@ -168,15 +211,28 @@ const visibleBookmarks = computed(() => {
   }
 }
 
-.bookmark-category-nav {
+.bookmark-category-shell {
   display: flex;
-  gap: 0.6rem;
-  overflow-x: auto;
+  align-items: flex-start;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
   border-radius: 1rem;
   background: var(--color-surface);
   padding: 0.65rem;
+}
+
+.bookmark-category-nav {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  gap: 0.6rem;
+  overflow-x: auto;
   scrollbar-width: thin;
+}
+
+.bookmark-category-nav-expanded {
+  flex-wrap: wrap;
+  overflow-x: visible;
 }
 
 .bookmark-category-tab {
@@ -192,6 +248,41 @@ const visibleBookmarks = computed(() => {
     background-color 0.2s ease,
     color 0.2s ease,
     opacity 0.2s ease;
+}
+
+.bookmark-category-expand {
+  display: inline-flex;
+  min-width: 2.45rem;
+  min-height: 2.45rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 0.8rem;
+  padding: 0 0.65rem;
+  color: var(--color-accent);
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.bookmark-category-expand-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+
+.bookmark-category-expand:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .bookmark-category-expand-text {
+    display: none;
+  }
 }
 
 .bookmark-category-tab:hover {

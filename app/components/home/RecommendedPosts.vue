@@ -12,6 +12,13 @@ defineProps<{
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const categoryPath = (category: unknown) => getCategoryPath(category)
+const categoryLabel = (category: unknown) => categoryPath(category).at(-1) ?? ''
+const categoryLink = (category: unknown) => {
+  const path = categoryPath(category)
+
+  return localePath(`/categories/${path.map(item => encodeURIComponent(item)).join('/')}`)
+}
 </script>
 
 <template>
@@ -27,9 +34,9 @@ const localePath = useLocalePath()
         :key="post.path"
         class="recommended-post-card relative rounded-[1.25rem] bg-[var(--color-surface)] p-3"
       >
-        <span v-if="post.category" class="recommended-post-category">
-          <ContentCategoryPath :category="post.category" />
-        </span>
+        <NuxtLink v-if="categoryLabel(post.category)" class="recommended-post-category" :to="categoryLink(post.category)">
+          {{ categoryLabel(post.category) }}
+        </NuxtLink>
         <NuxtLink
           class="block hover:opacity-100"
           :to="localePath(post.path)"

@@ -38,6 +38,7 @@ const emit = defineEmits<{
 }>()
 
 const { locale, t } = useI18n()
+const localePath = useLocalePath()
 const placeholderRef = ref<HTMLElement | null>(null)
 const flyoutRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -180,6 +181,16 @@ const sectionContent = (section: SearchSection) => {
 const sectionCategory = (section: SearchSection) => {
   return formatCategoryLabel(section.category)
 }
+const sectionCategoryPath = (section: SearchSection) => getCategoryPath(section.category)
+const categorySegmentLink = (path: string[]) => {
+  return localePath(`/categories/${path.map(item => encodeURIComponent(item)).join('/')}`)
+}
+const sectionTags = (section: SearchSection) => {
+  return (section.tags ?? [])
+    .map(tag => String(tag).trim())
+    .filter(Boolean)
+}
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
 const escapeRegExp = (value: string) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -387,9 +398,23 @@ onUnmounted(() => {
                   <span v-if="sectionSnippet(result.section)" class="site-search-result-content" v-html="highlightText(sectionSnippet(result.section))"></span>
                 </NuxtLink>
                 <span class="site-search-result-meta">
-                  <span v-if="sectionCategory(result.section)" v-html="highlightText(sectionCategory(result.section))"></span>
+                  <span v-if="sectionCategory(result.section)" class="site-search-result-meta-tags">
+                    <template v-for="(category, index) in sectionCategoryPath(result.section)" :key="`${category}-${index}`">
+                      <span v-if="index > 0">/</span>
+                      <NuxtLink class="site-search-result-meta-link" :to="categorySegmentLink(sectionCategoryPath(result.section).slice(0, index + 1))" @click="handleResultClick">
+                        <span v-html="highlightText(category)"></span>
+                      </NuxtLink>
+                    </template>
+                  </span>
                   <span v-if="result.section.created">{{ formatContentDate(result.section.created, locale) }}</span>
-                  <span v-if="result.section.tags?.length" v-html="highlightText(result.section.tags.join(' / '))"></span>
+                  <span v-if="sectionTags(result.section).length" class="site-search-result-meta-tags">
+                    <template v-for="(tag, index) in sectionTags(result.section)" :key="tag">
+                      <span v-if="index > 0">/</span>
+                      <NuxtLink class="site-search-result-meta-link" :to="tagPath(tag)" @click="handleResultClick">
+                        <span v-html="highlightText(tag)"></span>
+                      </NuxtLink>
+                    </template>
+                  </span>
                 </span>
                 <button
                   v-if="resultExtraMatches(result).length"
@@ -637,6 +662,20 @@ onUnmounted(() => {
   color: var(--color-accent);
   font-size: 0.82rem;
   font-weight: 800;
+}
+
+.site-search-result-meta-link {
+  color: var(--color-accent);
+}
+
+.site-search-result-meta-link:hover {
+  opacity: 0.8;
+}
+
+.site-search-result-meta-tags {
+  display: inline-flex;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .site-search-result-more {

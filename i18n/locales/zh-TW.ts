@@ -81,5 +81,7 @@ export default {
   bookmarks: {
     title: '收藏',
     description: '先放一些常用連結，之後可以繼續整理成正式收藏頁。',
+    expandCategories: '展開',
+    collapseCategories: '收起',
   },
 }

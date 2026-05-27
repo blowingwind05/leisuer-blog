@@ -34,6 +34,15 @@ const { data: taxonomies } = await useAsyncData('archive-taxonomies-' + locale.v
 const archiveCategories = computed(() => taxonomies.value?.categories ?? [])
 const archiveTags = computed(() => taxonomies.value?.tags ?? [])
 const archivePostCount = computed(() => posts.value?.length ?? 0)
+const postCategoryPath = (category: unknown) => getCategoryPath(category)
+const postCategoryLink = (category: unknown) => {
+  const path = postCategoryPath(category)
+
+  return localePath(`/categories/${path.map(item => encodeURIComponent(item)).join('/')}`)
+}
+const postCategoryLabel = (category: unknown) => {
+  return postCategoryPath(category).at(-1) ?? ''
+}
 const formatArchiveDate = (value?: Date | string) => {
   if (!value) return ''
 
@@ -86,17 +95,21 @@ const archiveYears = computed(() => {
             <span>{{ group.items.length }}</span>
           </h2>
           <div class="archive-list">
-            <NuxtLink
+            <div
               v-for="post in group.items"
               :key="post.path"
               class="archive-item"
-              :to="localePath(post.path)"
             >
-              <time class="archive-date" :datetime="String(post.created ?? post.updated ?? '')">
-                {{ formatArchiveDate(post.created ?? post.updated) }}
-              </time>
-              <span class="archive-item-title">{{ post.title }}</span>
-            </NuxtLink>
+              <NuxtLink class="archive-item-main" :to="localePath(post.path)">
+                <time class="archive-date" :datetime="String(post.created ?? post.updated ?? '')">
+                  {{ formatArchiveDate(post.created ?? post.updated) }}
+                </time>
+                <span class="archive-item-title">{{ post.title }}</span>
+              </NuxtLink>
+              <NuxtLink v-if="postCategoryLabel(post.category)" class="archive-category" :to="postCategoryLink(post.category)">
+                {{ postCategoryLabel(post.category) }}
+              </NuxtLink>
+            </div>
           </div>
         </div>
       </section>
@@ -178,11 +191,10 @@ const archiveYears = computed(() => {
 .archive-item {
   position: relative;
   display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.9rem;
   border-radius: 0.9rem;
-  padding: 0.7rem 0.8rem;
   color: var(--color-text-main);
   transition:
     background-color 0.2s ease,
@@ -206,6 +218,20 @@ const archiveYears = computed(() => {
   opacity: 1;
 }
 
+.archive-item-main {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 0.7rem 0 0.7rem 0.8rem;
+  color: var(--color-text-main);
+}
+
+.archive-item-main:hover {
+  opacity: 1;
+}
+
 .archive-date {
   color: var(--color-text-muted);
   font-size: 0.9rem;
@@ -222,13 +248,23 @@ const archiveYears = computed(() => {
 }
 
 .archive-category {
+  display: inline-flex;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  margin-right: 0.8rem;
   padding: 0.25rem 0.55rem;
   color: var(--color-accent);
   font-size: 0.85rem;
   font-weight: 800;
   white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.archive-category:hover {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -242,11 +278,21 @@ const archiveYears = computed(() => {
   .archive-item {
     grid-template-columns: 1fr;
     align-items: start;
+    gap: 0;
+    padding-bottom: 0.7rem;
+  }
+
+  .archive-item-main {
+    grid-template-columns: 1fr;
+    align-items: start;
     gap: 0.25rem;
+    padding-right: 0.8rem;
+    padding-bottom: 0.55rem;
   }
 
   .archive-category {
     width: max-content;
+    margin-left: 0.8rem;
   }
 }
 </style>

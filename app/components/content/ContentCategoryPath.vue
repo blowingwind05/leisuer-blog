@@ -2,7 +2,6 @@
 const props = defineProps<{
   category?: unknown
   fallback?: string
-  segmentHover?: boolean
   mode?: 'full' | 'leaf'
   linked?: boolean
 }>()
@@ -27,7 +26,11 @@ const categoryLink = (index: number) => {
   <span class="content-category-path">
     <template v-for="(item, index) in visibleCategoryPath" :key="`${item}-${index}`">
       <UIcon v-if="index > 0" name="lucide:chevron-right" class="content-category-separator" aria-hidden="true" />
-      <NuxtLink v-if="linked !== false" class="content-category-segment" :class="{ 'content-category-segment-hover': segmentHover }" :to="categoryLink(index)">
+      <NuxtLink
+        v-if="linked !== false"
+        class="content-category-segment"
+        :to="categoryLink(index)"
+      >
         {{ item }}
       </NuxtLink>
       <span v-else class="content-category-segment">
@@ -54,17 +57,15 @@ const categoryLink = (index: number) => {
 }
 
 .content-category-segment {
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
   color: inherit;
   padding: 0.16rem 0.38rem;
+  line-height: 1.25;
   transition:
     background-color 0.2s ease,
+    color 0.12s ease,
     opacity 0.2s ease;
-}
-
-.content-category-segment-hover:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
-  color: var(--color-accent);
-  opacity: 1;
 }
 </style>

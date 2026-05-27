@@ -81,5 +81,7 @@ export default {
   bookmarks: {
     title: 'ブックマーク',
     description: 'よく使うリンクを仮置きしています。あとで正式なブックマークページにできます。',
+    expandCategories: '展開',
+    collapseCategories: '折りたたむ',
   },
 }

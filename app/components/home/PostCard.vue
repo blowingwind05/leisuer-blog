@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   post: {
     path: string
     title?: string
@@ -16,6 +16,11 @@ defineProps<{
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const categoryPath = computed(() => getCategoryPath(props.post.category))
+const categoryLabel = computed(() => categoryPath.value.at(-1) ?? '')
+const categoryLink = computed(() => {
+  return localePath(`/categories/${categoryPath.value.map(item => encodeURIComponent(item)).join('/')}`)
+})
 </script>
 
 <template>
@@ -25,10 +30,10 @@ const localePath = useLocalePath()
   >
     <div class="flex min-h-0 min-w-0 flex-col">
       <div class="post-card-meta mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.95rem] font-bold text-[var(--color-text-muted)] xl:gap-x-4 xl:text-base">
-        <span v-if="post.category" class="post-card-category">
+        <NuxtLink v-if="categoryLabel" class="post-card-category" :to="categoryLink">
           <UIcon name="lucide:folder" class="size-4.5 shrink-0" />
-          <ContentCategoryPath :category="post.category" mode="leaf" />
-        </span>
+          <span>{{ categoryLabel }}</span>
+        </NuxtLink>
         <span v-if="post.created" class="inline-flex items-center gap-1.5 whitespace-nowrap">
           <UIcon name="lucide:calendar-days" class="size-4.5 shrink-0" />
           {{ formatContentDate(post.created, locale) }}
@@ -156,17 +161,4 @@ const localePath = useLocalePath()
   color: var(--color-accent);
 }
 
-.post-card-category :deep(.content-category-segment) {
-  color: inherit;
-  padding: 0;
-  background: transparent;
-  opacity: 1;
-  transition: none;
-}
-
-.post-card-category :deep(.content-category-segment:hover) {
-  color: inherit;
-  background: transparent;
-  opacity: 1;
-}
 </style>

@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
   showIcon: true,
 })
 
+const localePath = useLocalePath()
 const container = ref<HTMLElement | null>(null)
 const icon = ref<HTMLElement | null>(null)
 const moreButton = ref<HTMLElement | null>(null)
@@ -19,6 +20,7 @@ let resizeObserver: ResizeObserver | null = null
 
 const hiddenCount = computed(() => Math.max(0, props.tags.length - visibleCount.value))
 const visibleTags = computed(() => props.tags.slice(0, visibleCount.value))
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
 const setMeasureUnit = (element: Element | ComponentPublicInstance | null, index: number) => {
   if (element instanceof HTMLElement) {
@@ -90,7 +92,7 @@ onUnmounted(() => {
       </span>
       <template v-for="(tag, tagIndex) in visibleTags" :key="tag">
         <span v-if="tagIndex > 0" class="post-tag-separator">/</span>
-        <span class="post-card-tag">{{ tag }}</span>
+        <NuxtLink class="post-card-tag" :to="tagPath(tag)">{{ tag }}</NuxtLink>
       </template>
       <UPopover v-if="hiddenCount > 0" v-model:open="popoverOpen">
         <button class="post-tag-more" type="button">
@@ -107,9 +109,9 @@ onUnmounted(() => {
             >
               <UIcon name="lucide:x" />
             </button>
-            <span v-for="tag in tags" :key="tag" class="post-tag-popover-item">
+            <NuxtLink v-for="tag in tags" :key="tag" class="post-tag-popover-item" :to="tagPath(tag)" @click="popoverOpen = false">
               {{ tag }}
-            </span>
+            </NuxtLink>
           </div>
         </template>
       </UPopover>
@@ -173,7 +175,9 @@ onUnmounted(() => {
 .post-card-tag {
   position: relative;
   display: inline-flex;
+  color: inherit;
   cursor: pointer;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 

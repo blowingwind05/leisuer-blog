@@ -106,6 +106,7 @@
     "title": "IconPark",
     "description": "字节跳动开源图标库，提供多风格可定制图标。",
     "url": "https://iconpark.oceanengine.com",
+    "image": false,
     "category": "图标"
   },
   {
@@ -178,6 +179,7 @@
     "title": "CleanPNG",
     "description": "透明背景 PNG 图片素材库。",
     "url": "https://cleanpng.com",
+    "image": false,
     "category": "图片"
   },
   {

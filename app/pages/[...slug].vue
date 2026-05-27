@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const { locale, t } = useI18n()
+const localePath = useLocalePath()
 
 definePageMeta({
   pageTransition: {
@@ -48,9 +49,27 @@ const flattenTocLinks = (links: TocLink[] = []): TocLink[] => {
   ])
 }
 
+const expandCurrentTocBranch = (links: TocLink[] = [], activeId = ''): TocLink[] => {
+  const activeTopLevelLink = links.find((link) => {
+    return link.id === activeId || flattenTocLinks(link.children ?? []).some(child => child.id === activeId)
+  })
+
+  return links.flatMap(link => [
+    link,
+    ...(link.id === activeTopLevelLink?.id ? flattenTocLinks(link.children ?? []) : []),
+  ])
+}
+
+const tocTreeLinks = computed(() => {
+  return (page.value?.body?.toc?.links ?? []).filter(link => link.depth > 1)
+})
+
 const tocLinks = computed(() => {
-  return flattenTocLinks(page.value?.body?.toc?.links ?? [])
-    .filter(link => link.depth > 1)
+  return flattenTocLinks(tocTreeLinks.value)
+})
+
+const visibleTocLinks = computed(() => {
+  return expandCurrentTocBranch(tocTreeLinks.value, activeHeadingId.value)
 })
 
 const activeHeadingId = ref('')
@@ -62,6 +81,10 @@ const postTags = computed(() => taxonomies.value?.tags ?? [])
 const publishedAt = computed(() => formatContentDate(page.value?.created, locale.value))
 const editedAt = computed(() => formatContentDate(page.value?.updated, locale.value))
 const categoryPath = computed(() => getCategoryPath(page.value?.category))
+const categorySegmentPath = (index: number) => {
+  return localePath(`/categories/${categoryPath.value.slice(0, index + 1).map(item => encodeURIComponent(item)).join('/')}`)
+}
+const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
 useHead(() => ({
   title: page.value?.title ?? 'Leisuer',
@@ -103,7 +126,7 @@ const updateActiveHeading = () => {
 
   const activeHeading = headings
     .filter(heading => heading.getBoundingClientRect().top <= 112)
-    .at(-1) ?? headings[0]
+    .at(-1)
 
   activeHeadingId.value = activeHeading?.id ?? ''
 }
@@ -192,7 +215,7 @@ onUnmounted(() => {
           <div class="toc-card-scroll mx-4 mb-4">
             <ol class="toc-list grid gap-2 pb-2">
               <li
-                v-for="link in tocLinks"
+                v-for="link in visibleTocLinks"
                 :key="link.id"
                 :style="{ paddingLeft: `${Math.max(0, link.depth - 2) * 0.95}rem` }"
               >
@@ -215,7 +238,12 @@ onUnmounted(() => {
     <article ref="articleElement" class="min-w-0 rounded-[1.25rem] bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-10">
       <header class="mb-8">
         <p v-if="categoryPath.length" class="article-category mb-3 inline-flex font-bold text-[var(--color-accent)]">
-          <ContentCategoryPath :category="page.category" segment-hover />
+          <template v-for="(category, index) in categoryPath" :key="`${category}-${index}`">
+            <UIcon v-if="index > 0" name="lucide:chevron-right" class="article-category-separator" aria-hidden="true" />
+            <NuxtLink class="article-category-segment" :to="categorySegmentPath(index)">
+              {{ category }}
+            </NuxtLink>
+          </template>
         </p>
         <h1 class="mb-4 flex items-center gap-4 text-[clamp(1.75rem,3vw,2.8rem)] leading-tight font-bold text-[var(--color-text-main)] before:inline-block before:h-6 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">
           {{ page.title }}
@@ -250,7 +278,7 @@ onUnmounted(() => {
           <div v-if="page.tags?.length" class="article-meta-tags flex flex-wrap items-center gap-x-2 gap-y-1">
             <template v-for="(tag, index) in page.tags" :key="tag">
               <span v-if="index > 0" class="text-[var(--color-text-muted)]">/</span>
-              <span class="article-tag cursor-pointer">{{ tag }}</span>
+              <NuxtLink class="article-tag cursor-pointer" :to="tagPath(tag)">{{ tag }}</NuxtLink>
             </template>
           </div>
         </div>
@@ -440,13 +468,44 @@ onUnmounted(() => {
 }
 
 .article-category {
-  margin-inline-start: -0.38rem;
+  align-items: center;
+  gap: 0.2rem;
+  margin-inline-start: -0.82rem;
+}
+
+.article-category-separator {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
+  stroke-width: 2.6;
+}
+
+.article-category-segment {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1.25;
+  padding: 0.3rem 0.82rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.article-category-segment:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent) !important;
+  opacity: 1 !important;
 }
 
 .article-tag {
   position: relative;
   max-width: 100%;
+  color: inherit;
   overflow-wrap: anywhere;
+  text-decoration: none;
   transition:
     color 0.2s ease,
     opacity 0.2s ease;
