@@ -12,8 +12,13 @@ defineProps<{
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const categoryPath = (category: unknown) => getCategoryPath(category)
-const categoryLabel = (category: unknown) => categoryPath(category).at(-1) ?? ''
+const categoryLabel = (category: unknown) => {
+  const leafCategory = categoryPath(category).at(-1)
+
+  return leafCategory ? getCategoryLabel(leafCategory) : ''
+}
 const categoryLink = (category: unknown) => {
   const path = categoryPath(category)
 

@@ -4,6 +4,7 @@ defineProps<{
 }>()
 
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const categoryPath = (...segments: string[]) => localePath(`/categories/${segments.map(segment => encodeURIComponent(segment)).join('/')}`)
 </script>
 
@@ -12,12 +13,12 @@ const categoryPath = (...segments: string[]) => localePath(`/categories/${segmen
     <div class="grid gap-3">
       <div v-for="category in categories" :key="category.name" class="category-group">
         <NuxtLink :to="categoryPath(category.name)" class="category-row">
-          <span class="category-name">{{ category.name }}</span>
+          <span class="category-name">{{ getCategoryLabel(category.name) }}</span>
           <span class="category-count">{{ category.count }}</span>
         </NuxtLink>
         <div v-if="category.children?.length" class="category-children">
           <NuxtLink v-for="child in category.children" :key="`${category.name}-${child.name}`" :to="categoryPath(category.name, child.name)" class="category-child-row">
-            <span>{{ child.name }}</span>
+            <span>{{ getCategoryLabel(child.name) }}</span>
             <span class="category-child-count">{{ child.count }}</span>
           </NuxtLink>
         </div>

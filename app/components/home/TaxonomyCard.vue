@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const categoryPath = (...segments: string[]) => localePath(`/categories/${segments.map(segment => encodeURIComponent(segment)).join('/')}`)
 const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
 
@@ -39,12 +40,12 @@ const categoriesOpen = computed(() => categoriesHovered.value || categoriesLocke
         <div class="category-scroll-fade -mx-1 max-h-[8.7rem] overflow-y-auto px-1 pb-2">
           <div v-for="category in categories" :key="category.name">
             <NuxtLink :to="categoryPath(category.name)" class="flex items-center justify-between rounded-lg px-3 py-2 font-semibold text-[var(--color-text-main)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] hover:text-[var(--color-accent)] hover:opacity-100">
-              {{ category.name }}
+              {{ getCategoryLabel(category.name) }}
               <span class="min-w-9 rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] px-2 py-1 text-center text-[var(--color-accent)]">{{ category.count }}</span>
             </NuxtLink>
             <div v-if="category.children?.length" class="mt-1 ml-3 grid gap-1 border-l border-[var(--color-border)] pl-3">
               <NuxtLink v-for="child in category.children" :key="`${category.name}-${child.name}`" :to="categoryPath(category.name, child.name)" class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] hover:text-[var(--color-text-main)] hover:opacity-100">
-                {{ child.name }}
+                {{ getCategoryLabel(child.name) }}
                 <span class="text-[0.85em] text-[var(--color-text-muted)]">{{ child.count }}</span>
               </NuxtLink>
             </div>

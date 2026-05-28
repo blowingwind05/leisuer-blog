@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<{
     tags?: string[]
     wordCount?: number
     readingMinutes?: number
+    path?: string
   } | null
   collapsible?: boolean
   defaultCollapsed?: boolean
@@ -28,6 +29,8 @@ const showExpandNotice = ref(false)
 const publishedAt = computed(() => formatContentDate(props.page?.created, locale.value))
 const editedAt = computed(() => formatContentDate(props.page?.updated, locale.value))
 const tagPath = (tag: string) => localePath(`/tags/${encodeURIComponent(tag)}`)
+const isPageviewsEnabled = useUmamiPageviewsEnabled()
+const viewCount = useUmamiPageviews(() => localePath(props.page?.path ?? '/about'))
 
 const toggleCollapsed = () => {
   isCollapsed.value = !isCollapsed.value
@@ -117,9 +120,9 @@ const showCollapsedNotice = (event: MouseEvent) => {
             <UIcon name="lucide:clock" class="size-4.5" />
             {{ t('article.readingTime', { minutes: page?.readingMinutes ?? 1 }) }}
           </span>
-          <span class="inline-flex items-center gap-1.5">
+          <span v-if="isPageviewsEnabled" class="inline-flex items-center gap-1.5">
             <UIcon name="lucide:eye" class="size-4.5" />
-            {{ t('article.viewCount', { count: 233 }) }}
+            {{ t('article.viewCount', { count: viewCount }) }}
           </span>
         </div>
         <div v-if="page?.tags?.length" class="article-meta-tags flex flex-wrap items-center gap-x-2 gap-y-1">

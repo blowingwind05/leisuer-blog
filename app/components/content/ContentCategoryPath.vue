@@ -7,6 +7,7 @@ const props = defineProps<{
 }>()
 
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const categoryPath = computed(() => getCategoryPath(props.category))
 const visibleCategoryPath = computed(() => {
   if (props.mode === 'leaf') {
@@ -31,10 +32,10 @@ const categoryLink = (index: number) => {
         class="content-category-segment"
         :to="categoryLink(index)"
       >
-        {{ item }}
+        {{ getCategoryLabel(item) }}
       </NuxtLink>
       <span v-else class="content-category-segment">
-        {{ item }}
+        {{ getCategoryLabel(item) }}
       </span>
     </template>
     <span v-if="!visibleCategoryPath.length && fallback">{{ fallback }}</span>

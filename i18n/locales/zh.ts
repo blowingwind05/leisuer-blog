@@ -14,6 +14,9 @@ export default {
   language: {
     label: '语言',
   },
+  categories: {
+    Notes: '笔记',
+  },
   search: {
     placeholder: '搜索',
     title: '搜索',

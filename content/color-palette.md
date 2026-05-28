@@ -3,12 +3,12 @@ title: 站点色彩方案
 description: Leisuer 博客当前使用的亮色、暗色与公用颜色整理。
 created: 2026-05-16
 updated: 2026-05-16
-category: Design
+category: About
 tags:
   - Color
   - Theme
   - CSS
-  - Design System
+  - Design
 draft: false
 ---
 

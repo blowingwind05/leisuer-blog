@@ -14,6 +14,9 @@ export default {
   language: {
     label: '言語',
   },
+  categories: {
+    Notes: 'ノート',
+  },
   search: {
     placeholder: '検索',
     title: '検索',

@@ -2,6 +2,7 @@
 const route = useRoute()
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 
 const categoryPath = computed(() => {
   const value = route.params.category
@@ -10,7 +11,7 @@ const categoryPath = computed(() => {
   return segments.map(segment => decodeURIComponent(String(segment))).filter(Boolean).slice(0, 2)
 })
 
-const categoryLabel = computed(() => categoryPath.value.join(' / '))
+const categoryLabel = computed(() => categoryPath.value.map(getCategoryLabel).join(' / '))
 
 useHead(() => ({
   title: categoryLabel.value || t('home.categories'),

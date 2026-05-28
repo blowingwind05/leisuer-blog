@@ -39,6 +39,7 @@ const emit = defineEmits<{
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const placeholderRef = ref<HTMLElement | null>(null)
 const flyoutRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -179,7 +180,7 @@ const sectionContent = (section: SearchSection) => {
 }
 
 const sectionCategory = (section: SearchSection) => {
-  return formatCategoryLabel(section.category)
+  return getCategoryPath(section.category).map(getCategoryLabel).join(' / ')
 }
 const sectionCategoryPath = (section: SearchSection) => getCategoryPath(section.category)
 const categorySegmentLink = (path: string[]) => {

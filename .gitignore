@@ -23,6 +23,11 @@ logs
 .env.*
 !.env.example
 
+# Local deploy scripts
+scripts/deploy-leisuer-blog.sh
+scripts/deploy-gh-pages.sh
+scripts/deploy-github-root.sh
+
 pnpm-lock.yaml
 
 # Coding Agent

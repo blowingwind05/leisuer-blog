@@ -2,6 +2,7 @@
 const route = useRoute()
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 
 definePageMeta({
   pageTransition: {
@@ -81,6 +82,8 @@ const postTags = computed(() => taxonomies.value?.tags ?? [])
 const publishedAt = computed(() => formatContentDate(page.value?.created, locale.value))
 const editedAt = computed(() => formatContentDate(page.value?.updated, locale.value))
 const categoryPath = computed(() => getCategoryPath(page.value?.category))
+const isPageviewsEnabled = useUmamiPageviewsEnabled()
+const viewCount = useUmamiPageviews(() => route.path)
 const categorySegmentPath = (index: number) => {
   return localePath(`/categories/${categoryPath.value.slice(0, index + 1).map(item => encodeURIComponent(item)).join('/')}`)
 }
@@ -241,7 +244,7 @@ onUnmounted(() => {
           <template v-for="(category, index) in categoryPath" :key="`${category}-${index}`">
             <UIcon v-if="index > 0" name="lucide:chevron-right" class="article-category-separator" aria-hidden="true" />
             <NuxtLink class="article-category-segment" :to="categorySegmentPath(index)">
-              {{ category }}
+              {{ getCategoryLabel(category) }}
             </NuxtLink>
           </template>
         </p>
@@ -270,9 +273,9 @@ onUnmounted(() => {
               <UIcon name="lucide:clock" class="size-4.5" />
               {{ t('article.readingTime', { minutes: page.readingMinutes ?? 1 }) }}
             </span>
-            <span class="inline-flex items-center gap-1.5">
+            <span v-if="isPageviewsEnabled" class="inline-flex items-center gap-1.5">
               <UIcon name="lucide:eye" class="size-4.5" />
-              {{ t('article.viewCount', { count: 233 }) }}
+              {{ t('article.viewCount', { count: viewCount }) }}
             </span>
           </div>
           <div v-if="page.tags?.length" class="article-meta-tags flex flex-wrap items-center gap-x-2 gap-y-1">

@@ -14,6 +14,9 @@ export default {
   language: {
     label: 'Language',
   },
+  categories: {
+    Notes: 'Notes',
+  },
   search: {
     placeholder: 'Search',
     title: 'Search',

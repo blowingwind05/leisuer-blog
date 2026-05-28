@@ -16,11 +16,18 @@ const props = defineProps<{
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const { getCategoryLabel } = useCategoryLabel()
 const categoryPath = computed(() => getCategoryPath(props.post.category))
-const categoryLabel = computed(() => categoryPath.value.at(-1) ?? '')
+const categoryLabel = computed(() => {
+  const category = categoryPath.value.at(-1)
+
+  return category ? getCategoryLabel(category) : ''
+})
 const categoryLink = computed(() => {
   return localePath(`/categories/${categoryPath.value.map(item => encodeURIComponent(item)).join('/')}`)
 })
+const isPageviewsEnabled = useUmamiPageviewsEnabled()
+const viewCount = useUmamiPageviews(() => localePath(props.post.path))
 </script>
 
 <template>
@@ -46,9 +53,9 @@ const categoryLink = computed(() => {
           <UIcon name="lucide:clock" class="size-4.5 shrink-0" />
           {{ t('article.readingTime', { minutes: post.readingMinutes ?? 1 }) }}
         </span>
-        <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span v-if="isPageviewsEnabled" class="inline-flex items-center gap-1.5 whitespace-nowrap">
           <UIcon name="lucide:eye" class="size-4.5 shrink-0" />
-          233
+          {{ viewCount }}
         </span>
       </div>
       <h2 class="mb-4 flex items-center gap-4 text-[clamp(1.55rem,2.4vw,2.8rem)] leading-tight font-bold before:inline-block before:h-5 before:w-1 before:shrink-0 before:rounded-full before:bg-[var(--color-accent)] before:content-['']">

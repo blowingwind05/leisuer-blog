@@ -10,13 +10,20 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      analyticsEnabled: process.env.NUXT_PUBLIC_ANALYTICS_ENABLED !== 'false',
+      pageviewsEnabled: process.env.NUXT_PUBLIC_PAGEVIEWS_ENABLED === 'true',
+      umamiBaseUrl: process.env.NUXT_PUBLIC_UMAMI_BASE_URL || '',
       umamiScriptUrl: process.env.NUXT_PUBLIC_UMAMI_SCRIPT_URL || '',
+      umamiShareToken: process.env.NUXT_PUBLIC_UMAMI_SHARE_TOKEN || '',
       umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || '',
     },
   },
   content: {
     build: {
       markdown: {
+        highlight: {
+          langs: ['cpp'],
+        },
         toc: {
           depth: 3,
           searchDepth: 4,
@@ -27,9 +34,13 @@ export default defineNuxtConfig({
   mdc: {
     components: {
       map: {
+        caution: 'ProseCaution',
         collapse: 'ProseCollapse',
         details: 'ProseDetails',
         expand: 'ProseExpand',
+        note: 'ProseNote',
+        tip: 'ProseTip',
+        warning: 'ProseWarning',
       },
     },
   },

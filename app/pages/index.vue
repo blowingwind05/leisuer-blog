@@ -120,8 +120,8 @@ onMounted(async () => {
       revealObserver?.unobserve(entry.target)
     })
   }, {
-    rootMargin: '0px 0px -12% 0px',
-    threshold: 0.18,
+    rootMargin: '0px',
+    threshold: 0.08,
   })
 
   observeRevealCards()
@@ -350,16 +350,16 @@ onUnmounted(() => {
 
 .blog-section > aside .reveal-card:nth-child(2),
 .blog-section > div .reveal-card:nth-child(2) {
-  --reveal-delay: 0.08s;
+  --reveal-delay: 0.04s;
 }
 
 .blog-section > aside .reveal-card:nth-child(3),
 .blog-section > div .reveal-card:nth-child(3) {
-  --reveal-delay: 0.16s;
+  --reveal-delay: 0.08s;
 }
 
 .blog-section > .reveal-card {
-  --reveal-delay: 0.24s;
+  --reveal-delay: 0.12s;
 }
 
 .hero-panel {

@@ -4,6 +4,7 @@ const { locale } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const siteHeader = ref<{ closeMenus: () => void } | null>(null)
 const isInitialLoading = ref(true)
+const isAnalyticsEnabled = computed(() => runtimeConfig.public.analyticsEnabled !== false && runtimeConfig.public.analyticsEnabled !== 'false')
 
 provide('isInitialLoading', readonly(isInitialLoading))
 
@@ -55,12 +56,16 @@ useHead(() => ({
       referrerpolicy: 'no-referrer',
     },
   ],
-  script: runtimeConfig.public.umamiScriptUrl && runtimeConfig.public.umamiWebsiteId
+  script: isAnalyticsEnabled.value && runtimeConfig.public.umamiScriptUrl && runtimeConfig.public.umamiWebsiteId
     ? [
         {
+          key: 'umami-analytics',
           src: runtimeConfig.public.umamiScriptUrl,
           defer: true,
           'data-website-id': runtimeConfig.public.umamiWebsiteId,
+          'data-do-not-track': 'true',
+          'data-exclude-search': 'true',
+          'data-exclude-hash': 'true',
         },
       ]
     : [],
