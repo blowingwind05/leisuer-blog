@@ -1,0 +1,1 @@
+import{f as o,o as r,c as a,a3 as s,H as l,_ as n}from"./CqPSBiFr.js";const c=o({__name:"Alert",props:{color:{type:String,default:"orange"}},setup(e){return(t,_)=>(r(),a("div",{class:"alert",style:l({"border-color":e.color})},[s(t.$slots,"default",{},void 0,!0)],4))}}),p=Object.assign(n(c,[["__scopeId","data-v-46dbbe98"]]),{__name:"Alert"});export{p as default};

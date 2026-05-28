@@ -1,0 +1,1 @@
+import{P as n,p as o,f as u,aJ as r}from"./CqPSBiFr.js";const t=Symbol("nuxt-ui.field-group");function a(i){const e=n(t,void 0);return{orientation:o(()=>e?.value.orientation),size:o(()=>i?.size??e?.value.size)}}const d=u({name:"FieldGroupReset",setup(i,{slots:e}){return r(t,o(()=>({size:void 0,orientation:void 0}))),()=>e.default?.()}});export{d as F,a as u};
