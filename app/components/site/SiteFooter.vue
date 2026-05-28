@@ -18,8 +18,8 @@ const currentYear = new Date().getFullYear()
         <a class="text-inherit hover:text-[var(--color-text-main)] hover:opacity-100" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
           ICP备XXXXXXXX号
         </a>
-        <a class="text-inherit hover:text-[var(--color-text-main)] hover:opacity-100" href="https://icp.gov.moe/" target="_blank" rel="noopener noreferrer">
-          萌ICP备XXXXXXXX号
+        <a class="text-inherit hover:text-[var(--color-text-main)] hover:opacity-100" href="https://icp.gov.moe/?keyword=20260818" target="_blank" rel="noopener noreferrer">
+          萌ICP备20260818号
         </a>
       </div>
     </div>
