@@ -25,7 +25,7 @@ const friends = [
     name: 'Tsukumi233',
     description: '好室友，项目经验丰富，二次元老资历',
     url: 'https://blog.hotaron.top',
-    avatar: 'https://1.gravatar.com/avatar/cc6c79e72a9a75192b90ccf0b4d8179952626174f97901e1b99277b72fe050bb?size=512&d=initials',
+    avatar: 'https://blog.hotaron.top/img/avatar.png',
     theme: 'blue',
   },
   {

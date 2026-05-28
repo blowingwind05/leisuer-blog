@@ -169,7 +169,7 @@ onUnmounted(() => {
           <p v-if="shouldRenderAnimatedHero" class="hero-motto">- 猛志逸四海，骞翮思远翥 -</p>
           <p v-else class="hero-motto hero-motto-static">- 猛志逸四海，骞翮思远翥 -</p>
         </section>
-        <section class="w-full max-w-[var(--site-content-width)] md:hidden">
+        <section class="home-mobile-profile w-full max-w-[var(--site-content-width)] md:hidden">
           <HomeProfileCard />
         </section>
       </div>
@@ -688,6 +688,24 @@ onUnmounted(() => {
   }
 }
 
+.home-mobile-profile {
+  transform: translate3d(0, 1.5rem, 0);
+  visibility: hidden;
+  animation: home-mobile-profile-rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) 3s forwards;
+}
+
+@keyframes home-mobile-profile-rise {
+  from {
+    visibility: visible;
+    transform: translate3d(0, 1.5rem, 0);
+  }
+
+  to {
+    visibility: visible;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-panel,
   .line-one-hi,
@@ -696,8 +714,10 @@ onUnmounted(() => {
   .hero-motto,
   .scroll-hint,
   .scroll-hint-arrows path,
+  .home-mobile-profile,
   .reveal-card {
     opacity: 1;
+    visibility: visible;
     transform: none;
     clip-path: none;
     animation: none;

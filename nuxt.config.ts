@@ -34,13 +34,13 @@ export default defineNuxtConfig({
   mdc: {
     components: {
       map: {
-        caution: 'ProseCaution',
+        caution: 'MarkdownCaution',
         collapse: 'ProseCollapse',
         details: 'ProseDetails',
         expand: 'ProseExpand',
-        note: 'ProseNote',
-        tip: 'ProseTip',
-        warning: 'ProseWarning',
+        note: 'MarkdownNote',
+        tip: 'MarkdownTip',
+        warning: 'MarkdownWarning',
       },
     },
   },

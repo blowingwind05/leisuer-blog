@@ -4,7 +4,9 @@ const { locale } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const siteHeader = ref<{ closeMenus: () => void } | null>(null)
 const isInitialLoading = ref(true)
+const isRouteLoading = ref(false)
 const isAnalyticsEnabled = computed(() => runtimeConfig.public.analyticsEnabled !== false && runtimeConfig.public.analyticsEnabled !== 'false')
+const isAppLoading = computed(() => isInitialLoading.value || isRouteLoading.value)
 
 provide('isInitialLoading', readonly(isInitialLoading))
 
@@ -89,6 +91,22 @@ watch(
   },
 )
 
+if (import.meta.client) {
+  const nuxtApp = useNuxtApp()
+
+  nuxtApp.hook('page:start', () => {
+    isRouteLoading.value = true
+  })
+
+  nuxtApp.hook('page:finish', () => {
+    isRouteLoading.value = false
+  })
+
+  nuxtApp.hook('app:error', () => {
+    isRouteLoading.value = false
+  })
+}
+
 onMounted(async () => {
   const finishLoading = async () => {
     await Promise.all(criticalImageSources.map(src => preloadImage(src)))
@@ -111,7 +129,7 @@ onMounted(async () => {
   <NuxtPage v-if="isBarePage" :key="pageKey" />
 
   <template v-else>
-    <div class="app-loading" :class="{ 'app-loading-hidden': !isInitialLoading }" aria-hidden="true">
+    <div class="app-loading" :class="{ 'app-loading-hidden': !isAppLoading }" aria-hidden="true">
       <div class="app-loading-panel">
         <div class="app-loading-ring"></div>
         <div class="app-loading-text">Loading</div>

@@ -35,7 +35,7 @@ draft: false
 
 几个比较感兴趣的方向：
 
-- AI系统优化，训练和推理加速
+- 大模型系统优化，训练和推理加速
 - LLM agent、agentic RAG
 - 具身智能
 
