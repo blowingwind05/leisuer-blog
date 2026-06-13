@@ -16,7 +16,7 @@ const currentYear = new Date().getFullYear()
       </p>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
         <a class="text-inherit hover:text-[var(--color-text-main)] hover:opacity-100" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
-          ICP备XXXXXXXX号
+          京ICP备2026030226号-1
         </a>
         <a class="text-inherit hover:text-[var(--color-text-main)] hover:opacity-100" href="https://icp.gov.moe/?keyword=20260818" target="_blank" rel="noopener noreferrer">
           萌ICP备20260818号
